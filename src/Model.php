@@ -8,12 +8,12 @@ use PDOException;
 abstract class Model
 {
     private $limit;
+    private $columns;
     private $offset;
     private $order;
     private $statement;
     private $params;
     private $operation;
-    private $count;
     private $where;
 
     public function __construct()
@@ -26,13 +26,32 @@ abstract class Model
         }
     }
 
-    public function select($cols = "*")
+    public function select($cols = ["*"])
     {
         $this->operation = "select";
 
-        $this->statement = "SELECT {$cols} FROM {$this->table} ";
+        $this->columns = "";
+
+        $cols = is_array($cols) ? $cols : func_get_args();
+
+        foreach($cols as $index => $col) {
+            $this->columns .= $col;
+            if($index != count($cols) - 1) {
+                $this->columns .= ", ";
+            }
+            
+        }
+
+        $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
 
         return $this;
+    }
+
+    public function find($id)
+    {
+        $this->where .= "WHERE id={$id}";
+
+        return $this->execute();
     }
 
     public function where($where)
@@ -53,37 +72,41 @@ abstract class Model
                 }
                 $this->where .= $value . " ";
             }
-            return $this->where;
+            return $this;
         }
 
-        foreach($where as $key => $value){
-            foreach($value as $id => $ele){
-                if($id == 0){
-                    $value = "`{$ele}`";
+        if($multi > 0) {
+            foreach($where as $key => $value){
+                foreach($value as $id => $ele){
+                    if($id == 0){
+                        $value = "`{$ele}`";
+                    }
+                    if($id == 2){
+                        $this->params[] = $ele;
+                        $ele = "?";
+                    }
+                    $this->where .= $ele . " ";
                 }
-                if($id == 2){
-                    $this->params[] = $ele;
-                    $ele = "?";
+                if(count($where) - 1 != $key){
+                    $this->where .= "AND ";
                 }
-                $this->where .= $ele . " ";
-            }
-            if(count($where) - 1 != $key){
-                $this->where .= "AND ";
             }
         }
-        return $this->where;
+        
+        return $this;
     }
 
     public function delete()
     {
         $this->operation = "delete";
         $this->statement = "DELETE FROM {$this->table} ";
+        return $this;
     }
 
     public function save($cols, $datas)
     {
         if(count($cols) != count($datas)){
-            return null;
+            return $this;
         }
 
         $fields = "(";
@@ -127,22 +150,45 @@ abstract class Model
             $set .= $tmp;
         }
 
-        return $this->statement = "UPDATE {$this->table} SET {$set}";
+        $this->statement = "UPDATE {$this->table} SET {$set}";
+
+        return $this;
     }
 
     public function limit($num)
     {
         $this->limit = "LIMIT {$num} ";
+        return $this;
     }
 
     public function offset($num)
     {
         $this->offset = "OFFSET {$num} ";
+        return $this;
     }
 
-    public function order($order)
+    public function order($col, $order)
     {
-        $this->order = "ORDER BY {$order} ";
+        $this->order = "ORDER BY {$col} {$order} ";
+        return $this;
+    }
+
+    public function count()
+    {
+        $this->select();
+
+        $this->operation = "count";
+
+        return $this->execute();
+    }
+
+    public function addSelect($col)
+    {
+        $this->columns .= ", {$col}";
+
+        $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
+
+        return $this;
     }
 
     public function execute($all = true)
@@ -155,7 +201,9 @@ abstract class Model
                 return null;
             }
 
-            $this->count = $stmt->rowCount();
+            if($this->operation == "count") {
+                return $stmt->rowCount();
+            }
 
             if($this->operation != "select"){
                 return $result;
