@@ -2,9 +2,9 @@
 
 declare(strict_types = 1);
 
-namespace App;
+namespace Accolon\DataLayer;
 
-use App\Connection;
+use Accolon\DataLayer\Connection;
 use PDOException;
 
 abstract class Model

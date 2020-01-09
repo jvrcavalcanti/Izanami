@@ -1,3 +1,4 @@
 vendor/*
 helper.php
 config.php
+composer.lock

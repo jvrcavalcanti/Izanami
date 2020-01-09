@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Model;
+use Accolon\DataLayer\Model;
 
 class Db
 {

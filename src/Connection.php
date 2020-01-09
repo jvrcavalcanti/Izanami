@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace Accolon\DataLayer;
 
 use PDO;
 use PDOException;
