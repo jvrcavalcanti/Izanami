@@ -1,7 +1,15 @@
 {
     "name": "accolon/datalayer",
     "description": "Library to abstration data layer",
+    "type": "library",
     "license": "MIT",
+    "homepage": "https://github.com/jvrcavalcanti/DataLayer",
+    "authors": [
+        {
+            "name": "João Victor Rocha Cavalcanti",
+            "email": "jonnyvictor01@gmail.com"
+        }
+    ],
     "require": {
         "php": "^7.2"
     },
