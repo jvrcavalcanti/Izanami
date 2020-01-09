@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace App;
 
 use App\Connection;
@@ -26,7 +28,7 @@ abstract class Model
         }
     }
 
-    public function select($cols = ["*"])
+    public function select(array $cols = ["*"])
     {
         $this->operation = "select";
 
@@ -47,14 +49,14 @@ abstract class Model
         return $this;
     }
 
-    public function find($id)
+    public function find(int $id)
     {
         $this->where .= "WHERE id={$id}";
 
         return $this->execute();
     }
 
-    public function where($where)
+    public function where(array $where)
     {
         $this->where = "WHERE ";
 
@@ -103,7 +105,7 @@ abstract class Model
         return $this;
     }
 
-    public function save($cols, $datas)
+    public function save(array $cols, array $datas)
     {
         if(count($cols) != count($datas)){
             return $this;
@@ -136,7 +138,7 @@ abstract class Model
         return $this;
     }
 
-    public function update($cols, $datas)
+    public function update(array $cols, array $datas)
     {
         $this->operation = "update";
 
@@ -155,19 +157,19 @@ abstract class Model
         return $this;
     }
 
-    public function limit($num)
+    public function limit(int $num)
     {
         $this->limit = "LIMIT {$num} ";
         return $this;
     }
 
-    public function offset($num)
+    public function offset(int $num)
     {
         $this->offset = "OFFSET {$num} ";
         return $this;
     }
 
-    public function order($col, $order)
+    public function order(string $col, string $order)
     {
         $this->order = "ORDER BY {$col} {$order} ";
         return $this;
@@ -182,7 +184,7 @@ abstract class Model
         return $this->execute();
     }
 
-    public function addSelect($col)
+    public function addSelect(string $col)
     {
         $this->columns .= ", {$col}";
 
@@ -191,7 +193,7 @@ abstract class Model
         return $this;
     }
 
-    public function execute($all = true)
+    public function execute(bool $all = true)
     {
         try{
             $stmt = Connection::conn()->prepare($this->statement . $this->where . $this->order . $this->limit . $this->offset);
