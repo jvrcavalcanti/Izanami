@@ -11,13 +11,13 @@
         }
     ],
     "require": {
-        "php": "^7.2"
+        "php": ">=7.2"
     },
     "autoload": {
         "psr-4": {
             "Accolon\\DataLayer\\": "src"
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
