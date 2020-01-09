@@ -1,6 +1,7 @@
 {
     "name": "accolon/datalayer",
     "description": "Library to abstration data layer",
+    "license": "MIT",
     "require": {
         "php": "^7.2"
     },
