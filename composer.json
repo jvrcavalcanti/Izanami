@@ -1,4 +1,9 @@
 {
+    "name": "accolon/datalayer",
+    "description": "Library to abstration data layer",
+    "require": {
+        "php": "^7.2"
+    },
     "autoload": {
         "psr-4": {
             "App\\": "src"
