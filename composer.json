@@ -1,6 +1,6 @@
 {
     "name": "accolon/datalayer",
-    "description": "Library to abstration data layer",
+    "description": "Library to data layer abstration",
     "type": "library",
     "license": "MIT",
     "homepage": "https://github.com/jvrcavalcanti/DataLayer",
