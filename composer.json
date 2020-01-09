@@ -16,11 +16,7 @@
     "autoload": {
         "psr-4": {
             "Accolon\\DataLayer\\": "src"
-        },
-        "files":[
-            "config.php",
-            "helper.php"
-        ]
+        }
     },
     "minimum-stability": "dev",
     "prefer-stable": true
