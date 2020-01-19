@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Accolon\DataLayer;
 
-use Accolon\DataLayer\Connection;
 use PDOException;
 
 abstract class Model
@@ -51,6 +50,8 @@ abstract class Model
 
     public function find(int $id)
     {
+        $this->select();
+        
         $this->where .= "WHERE id={$id}";
 
         return $this->execute();
@@ -196,7 +197,7 @@ abstract class Model
     public function execute(bool $all = true)
     {
         try{
-            $stmt = Connection::conn()->prepare($this->statement . $this->where . $this->order . $this->limit . $this->offset);
+            $stmt = Db::connection()->prepare($this->statement . $this->where . $this->order . $this->limit . $this->offset);
             $result = $stmt->execute($this->params);
 
             if(!$stmt->rowCount()){

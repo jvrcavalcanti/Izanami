@@ -1,7 +1,6 @@
 <?php
 
-use App\Db;
-use App\Table;
+use Accolon\DataLayer\Db;
 
 require_once "../vendor/autoload.php";
 
