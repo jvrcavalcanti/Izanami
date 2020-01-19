@@ -99,11 +99,20 @@ abstract class Model
         return $this;
     }
 
+    public function get()
+    {
+        $this->operation = "select";
+
+        $this->select();
+
+        return $this->execute();
+    }
+
     public function delete()
     {
         $this->operation = "delete";
         $this->statement = "DELETE FROM {$this->table} ";
-        return $this;
+        return $this->execute();
     }
 
     public function save(array $cols, array $datas)
@@ -136,7 +145,7 @@ abstract class Model
         $this->operation = "insert";
         $this->statement = "INSERT INTO {$this->table} {$fields} VALUES {$values}";
 
-        return $this;
+        return $this->execute();
     }
 
     public function update(array $cols, array $datas)
@@ -155,7 +164,7 @@ abstract class Model
 
         $this->statement = "UPDATE {$this->table} SET {$set}";
 
-        return $this;
+        return $this->execute();
     }
 
     public function limit(int $num)

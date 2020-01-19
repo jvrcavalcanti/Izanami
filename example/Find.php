@@ -4,6 +4,6 @@ use Accolon\DataLayer\Db;
 
 require_once "../vendor/autoload.php";
 
-$db = DB::table('post')->select();
+$db = Db::table('post');
 
-dd($db->find(60));
+dd($db->where(["id", "=", 60])->get());
