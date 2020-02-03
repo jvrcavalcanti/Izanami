@@ -18,6 +18,18 @@
             "Accolon\\DataLayer\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Accolon\\DataLayer\\Tests\\": "tests"
+        },
+        "files": [
+            "config.php",
+            "helper.php"
+        ]
+    },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "phpunit/phpunit": "8"
+    }
 }

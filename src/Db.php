@@ -15,18 +15,20 @@ class Db
     {
         try{
             if(!self::$instance) {
-                $config = require "../config.php";
-                $config = $config["db"];
+                $config = DB ?? null;
 
-                self::$instance = new PDO("{$config->driver}:host={$config->host};port={$config->port};charset={$config->charset};dbname={$config->name}",
-                    $config->user,
-                    $config->password);
+                if(!$config) return null;
+
+                self::$instance = new PDO("{$config['driver']}:host={$config['host']};port={$config['port']};charset={$config['charset']};dbname={$config['name']}",
+                    $config['user'],
+                    $config['password']);
                     
                 self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$instance->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
                 return self::connection();
             }
+
             return self::$instance;
 
         }catch(PDOException $e){
