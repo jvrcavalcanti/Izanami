@@ -35,13 +35,7 @@ abstract class Model
 
         $cols = is_array($cols) ? $cols : func_get_args();
 
-        foreach($cols as $index => $col) {
-            $this->columns .= $col;
-            if($index != count($cols) - 1) {
-                $this->columns .= ", ";
-            }
-            
-        }
+        $this->columns = implode(", ", $cols);
 
         $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
 
@@ -124,20 +118,13 @@ abstract class Model
         $fields = "(";
         $values = "(";
 
-        foreach($cols as $key=>$col){
-            $field = "`" . $col . "`, ";
-            if($key == count($cols) - 1){
-                $field = "`" . $col . "`";
-            }
-            $fields .= $field;
-
-            $value = "'" . $datas[$key] . "', ";
-            if($key == count($datas) - 1){
-                $value = "'" . $datas[$key] . "'";
-            }
-            $values .= $value;
-            
+        for($i = 0; $i < sizeof($cols); $i ++) {
+            $cols[$i] = "`" . $cols[$i] . "`";
+            $datas[$i] = "'" . $datas[$i] . "'";
         }
+
+        $fields .= implode(", ", $cols);
+        $values .= implode(", ", $datas);
 
         $fields .= ")";
         $values .= ")";
@@ -152,9 +139,13 @@ abstract class Model
     {
         $this->operation = "update";
 
+        if(count($cols) != count($datas)){
+            return $this;
+        }
+
         $set = "";
 
-        foreach($cols as $key=>$col){
+        foreach($cols as $key  =>$col){
             $tmp = "`{$col}` = '{$datas[$key]}', ";
             if($key == count($cols) - 1){
                 $tmp = "`{$col}` = '{$datas[$key]}' ";

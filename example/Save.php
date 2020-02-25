@@ -4,14 +4,19 @@ use Accolon\DataLayer\Db;
 
 require_once "../vendor/autoload.php";
 
-$db = DB::table('post');
+$db = DB::table('posts');
 
-dd($db->save(["titulo", "texto_post", "tags", "idAutor", "dt_post", "gostei", "n_gostei"],[
-    "Titulo muito louco",
-    "Texto muito louco",
-    "#outro#",
-    1,
-    "2020-01-18",
+$date = new DateTime("now");
+$now = $date->format("Y-m-d H:i:s");
+
+dd($db->save(["title", "text", "tags", "like", "dislike", "user_id", "created_at", "updated_at"],
+[
+    "asfasf",
+    "asas",
+    "afsasf",
     0,
-    0
+    0,
+    1,
+    $now,
+    $now
 ]));

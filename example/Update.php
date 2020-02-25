@@ -4,7 +4,7 @@ use Accolon\DataLayer\Db;
 
 require_once "../vendor/autoload.php";
 
-$db = DB::table('post')->where(["id", "=", 61]);
+$db = DB::table('posts')->where(["id", "=", 1]);
 
 dd($db->update(["tags"], [
     "#musicas#outros#"
