@@ -18,7 +18,7 @@ class QueryTest extends TestCase
     public function testBruteSQL(): void
     {
         $db = DB::bruteSql("SELECT * FROM posts WHERE id = 1");
-        $this->assertIsArray($db);
+        $this->assertTrue($db);
     }
 
     public function testCount(): void

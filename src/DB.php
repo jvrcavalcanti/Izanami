@@ -48,15 +48,24 @@ class Db
         };
     }
 
-    public static function bruteSql($sql, $params = [])
+    public static function bruteSelect($sql, $params = [])
     {
         try {
             $stmt = self::connection()->prepare($sql);
             $result = $stmt->execute($params);
 
-            if($result) {
-                return $stmt->fetchAll();
-            }
+            return $stmt->fetchAll();
+
+        } catch(PDOException $e) {
+            die($e->getMessage());
+        }
+    }
+
+    public static function bruteSQL($sql, $params = [])
+    {
+        try {
+            $stmt = self::connection()->prepare($sql);
+            $result = $stmt->execute($params);
 
             return $result;
 
