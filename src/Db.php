@@ -7,7 +7,7 @@ use Accolon\DataLayer\Model;
 use PDO;
 use PDOException;
 
-class DB
+class Db
 {
     private static $instance;
 

@@ -5,6 +5,7 @@
 namespace Accolon\DataLayer;
 
 use PDOException;
+use Accolon\DataLayer\Db;
 
 abstract class Model
 {
