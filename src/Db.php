@@ -47,4 +47,21 @@ class DB
             }
         };
     }
+
+    public static function bruteSql($sql, $params = [])
+    {
+        try {
+            $stmt = self::connection()->prepare($sql);
+            $result = $stmt->execute($params);
+
+            if($result) {
+                return $stmt->fetchAll();
+            }
+
+            return $result;
+
+        } catch(PDOException $e) {
+            die($e->getMessage());
+        }
+    }
 }
