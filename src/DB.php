@@ -15,7 +15,7 @@ class Db
     {
         try{
             if(!self::$instance) {
-                $config = DB ?? null;
+                $config = DB_CONFIG ?? null;
 
                 if(!$config) return null;
 
