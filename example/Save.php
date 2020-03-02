@@ -1,22 +1,15 @@
 <?php
 
 use Accolon\DataLayer\Db;
+use App\Post;
 
 require_once "../vendor/autoload.php";
 
-$db = DB::table('posts');
+$db = new Post();
 
-$date = new DateTime("now");
-$now = $date->format("Y-m-d H:i:s");
+$db->title = "test save";
+$db->text = "Eu aqui testando novo save";
+$db->tags = "#outros#";
+$db->user_id = 1;
 
-dd($db->save(["title", "text", "tags", "like", "dislike", "user_id", "created_at", "updated_at"],
-[
-    "asfasf",
-    "asas",
-    "afsasf",
-    0,
-    0,
-    1,
-    $now,
-    $now
-]));
+dd($db->save());

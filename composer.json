@@ -20,7 +20,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Accolon\\DataLayer\\Tests\\": "tests"
+            "Accolon\\DataLayer\\Tests\\": "tests",
+            "App\\": "app/"
         },
         "files": [
             "config.php",

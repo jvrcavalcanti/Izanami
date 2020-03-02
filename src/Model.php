@@ -18,16 +18,6 @@ abstract class Model
     private $operation;
     private $where;
 
-    public function __construct()
-    {
-        $cols = $this->select()->execute(false);
-
-        foreach($cols as $key => $value){
-            $key = strtolower($key);
-            $this->$key = null;
-        }
-    }
-
     public function select(array $cols = ["*"])
     {
         $this->operation = "select";
@@ -110,30 +100,27 @@ abstract class Model
         return $this->execute();
     }
 
-    public function save(array $cols, array $datas)
+    public function save(): bool
     {
-        if(count($cols) != count($datas)){
-            return $this;
-        }
-
-        $fields = "(";
-        $values = "(";
-
-        for($i = 0; $i < sizeof($cols); $i ++) {
-            $cols[$i] = "`" . $cols[$i] . "`";
-            $datas[$i] = "'" . $datas[$i] . "'";
-        }
-
-        $fields .= implode(", ", $cols);
-        $values .= implode(", ", $datas);
-
-        $fields .= ")";
-        $values .= ")";
-
+        $exceptions = ["table", "limit", "columns", "statement", "params", "operation", "where", "offset", "order"];
         $this->operation = "insert";
+
+        $fields = [];
+        $values = [];
+
+        foreach($this as $key => $value) {
+            if(!in_array($key, $exceptions)){
+                $fields[] = "`{$key}`";
+                $values[] = "'{$value}'";
+            }
+        }
+
+        $fields = "(" . implode(", ", $fields) . ")";
+        $values = "(" . implode(", ", $values) . ")";
+
         $this->statement = "INSERT INTO {$this->table} {$fields} VALUES {$values}";
 
-        return $this->execute();
+        return $this->execute();    
     }
 
     public function update(array $cols, array $datas)
@@ -227,8 +214,7 @@ abstract class Model
             return $stmt->fetchObject();
 
         }catch(PDOException $e){
-            echo "Error: {$e->getMessage()}";
-            return null;
+            die("Error: {$e->getMessage()}");
         }
     }
 }
