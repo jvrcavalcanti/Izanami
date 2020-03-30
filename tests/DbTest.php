@@ -16,6 +16,6 @@ class DbTest extends TestCase
 
     public function testCreateObject(): void
     {
-        $this->assertIsObject(Db::table('post'));
+        $this->assertIsObject(Db::table('users'));
     }
 }

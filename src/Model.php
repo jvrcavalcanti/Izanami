@@ -84,13 +84,17 @@ abstract class Model
         return $this;
     }
 
-    public function get()
+    public function get(bool $object = false)
     {
         $this->operation = "select";
 
-        $this->select();
+        if(!$this->columns) {
+            $this->columns = "* ";
+        }
 
-        return $this->execute();
+        $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
+
+        return $this->execute(!$object);
     }
 
     public function delete()
@@ -202,13 +206,6 @@ abstract class Model
 
             if($all){
                 return $stmt->fetchAll();
-            }
-
-            $result = $stmt->fetchObject();
-
-            foreach($result as $key => $value){
-                $key = strtolower($key);
-                $this->$key = $value;
             }
             
             return $stmt->fetchObject();
