@@ -55,12 +55,15 @@ trait CRUD
 
         $set = "";
 
+        $i = 0;
+
         foreach($cols as $key => $col){
             $tmp = "`{$key}` = '{$col}', ";
-            if($key == count($cols) - 1){
+            if($i == count($cols) - 1){
                 $tmp = "`{$key}` = '{$col}' ";
             }
             $set .= $tmp;
+            $i++;
         }
 
         $this->statement = "UPDATE {$this->table} SET {$set}";
