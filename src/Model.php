@@ -22,6 +22,15 @@ abstract class Model
     private $operation;
     private $where;
 
+    public function clear()
+    {
+        $attrs = ["limit", "offset", "columns", "order", "statement", "params", "operation", "where"];
+        foreach($attrs as $attr) {
+
+            $this->$attr = null;
+        }
+    }
+
     public function limit(int $num)
     {
         $this->limit = "LIMIT {$num} ";
@@ -58,20 +67,11 @@ abstract class Model
         return $this;
     }
 
-    public function clear()
-    {
-        foreach($this as $attr) {
-            $attr = null;
-        }
-    }
-
     public function execute(bool $all = true)
     {
         try{
             $stmt = Db::connection()->prepare($this->statement . $this->where . $this->order . $this->limit . $this->offset);
             $result = $stmt->execute($this->params);
-
-            $this->clear();
 
             if(!$stmt->rowCount()){
                 return null;
@@ -84,6 +84,8 @@ abstract class Model
             if($this->operation != "select"){
                 return $result;
             }
+
+            $this->clear();
 
             if($all){
                 return $stmt->fetchAll();
