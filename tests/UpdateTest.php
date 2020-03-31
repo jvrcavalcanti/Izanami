@@ -11,6 +11,6 @@ class UpdateTest extends TestCase
         $result = $db->where(["username", "=", "Teste"])->update([
             "email" => "teste@gmail.com"
         ]);
-        $this->assertTrue($result);
+        $this->assertNull($result);
     }
 }

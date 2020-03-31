@@ -58,11 +58,20 @@ abstract class Model
         return $this;
     }
 
+    public function clear()
+    {
+        foreach($this as $attr) {
+            $attr = null;
+        }
+    }
+
     public function execute(bool $all = true)
     {
         try{
             $stmt = Db::connection()->prepare($this->statement . $this->where . $this->order . $this->limit . $this->offset);
             $result = $stmt->execute($this->params);
+
+            $this->clear();
 
             if(!$stmt->rowCount()){
                 return null;
