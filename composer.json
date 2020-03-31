@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "php": ">=7.2"
+        "php": "^7.4"
     },
     "autoload": {
         "psr-4": {
@@ -20,7 +20,6 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Accolon\\DataLayer\\Tests\\": "tests",
             "App\\": "app/"
         },
         "files": [

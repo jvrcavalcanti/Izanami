@@ -1,7 +1,5 @@
 <?php
 
-namespace Accolon\DataLayer\Test;
-
 require_once "./vendor/autoload.php";
 
 use Accolon\DataLayer\Db;

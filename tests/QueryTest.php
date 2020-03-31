@@ -1,7 +1,5 @@
 <?php
 
-namespace Accolon\DataLayer\Test;
-
 use Accolon\DataLayer\Db;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +16,7 @@ class QueryTest extends TestCase
     public function testQueryAll(): void
     {
         $db = Db::table("users");
-        $this->assertTrue(is_array($db->get(false)));
+        $this->assertTrue(is_array($db->all()));
     }
 
     public function testQueryObject(): void
