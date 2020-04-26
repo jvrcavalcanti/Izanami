@@ -13,6 +13,27 @@ class QueryTest extends TestCase
         $this->assertNotNull($db->find(1));
     }
 
+    public function testMultipleWhere()
+    {
+        $db = DB::table('users');
+        $result = $db->where([
+            ["id", "=", 1],
+            ["username", "=", "Teste"]
+        ])->get(false);
+        $this->assertNotNull($result);
+    }
+
+    public function testLimit()
+    {
+        $db = DB::table('users');
+
+        $cont = 2;
+
+        $result = $db->limit($cont)->all();
+
+        $this->assertEquals($cont, sizeof($result));
+    }
+
     public function testQueryAll(): void
     {
         $db = Db::table("users");
@@ -25,7 +46,7 @@ class QueryTest extends TestCase
         $this->assertTrue(is_object($db->get(true)));
     }
 
-    public function testBruteSQL(): void
+    public function testBruteSql(): void
     {
         $db = Db::bruteSql("SELECT * FROM users WHERE id = 1");
         $this->assertTrue($db);

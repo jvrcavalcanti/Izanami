@@ -1,6 +1,6 @@
 <?php
 
-// declare(strict_types = 1);
+declare(strict_types = 1);
 
 namespace Accolon\DataLayer;
 
@@ -13,14 +13,14 @@ abstract class Model
 {
     use Query, CRUD;
 
-    private $limit;
-    private $columns;
-    private $offset;
-    private $order;
-    private $statement;
-    private $params;
-    private $operation;
-    private $where;
+    private ?string $limit = "";
+    private ?string $columns = "";
+    private ?string $offset = "";
+    private ?string $order = "";
+    private ?string $statement = "";
+    private ?array $params = [];
+    private ?int $operation = 0;
+    private ?string $where = "";
 
     public function clear()
     {
@@ -31,34 +31,34 @@ abstract class Model
         }
     }
 
-    public function limit(int $num)
+    public function limit(int $num): Model
     {
         $this->limit = "LIMIT {$num} ";
         return $this;
     }
 
-    public function offset(int $num)
+    public function offset(int $num): Model
     {
         $this->offset = "OFFSET {$num} ";
         return $this;
     }
 
-    public function order(string $col, string $order)
+    public function order(string $col, string $order): Model
     {
         $this->order = "ORDER BY {$col} {$order} ";
         return $this;
     }
 
-    public function count()
+    public function count(): int
     {
         $this->select();
 
-        $this->operation = "count";
+        $this->operation = Operation::Count;
 
         return $this->execute();
     }
 
-    public function addSelect(string $col)
+    public function addSelect(string $col): Model
     {
         $this->columns .= ", {$col}";
 
@@ -70,18 +70,20 @@ abstract class Model
     public function execute(bool $all = true)
     {
         try{
-            $stmt = Db::connection()->prepare($this->statement . $this->where . $this->order . $this->limit . $this->offset);
+            $stmt = Db::connection()->prepare(
+                $this->statement . $this->where . $this->order . $this->limit . $this->offset
+            );
             $result = $stmt->execute($this->params);
 
             if(!$stmt->rowCount()){
                 return null;
             }
 
-            if($this->operation == "count") {
+            if($this->operation == Operation::Count) {
                 return $stmt->rowCount();
             }
 
-            if($this->operation != "select"){
+            if($this->operation != Operation::Select){
                 return $result;
             }
 
@@ -94,6 +96,7 @@ abstract class Model
             return $stmt->fetchObject();
 
         }catch(PDOException $e){
+            // echo $this->statement . $this->where . $this->order . $this->limit . $this->offset; // Debug
             die("Error: {$e->getMessage()}");
         }
     }

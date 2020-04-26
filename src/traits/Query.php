@@ -2,6 +2,9 @@
 
 namespace Accolon\DataLayer\Traits;
 
+use Accolon\DataLayer\Model;
+use Accolon\DataLayer\Operation;
+
 trait Query
 {
     public function get(bool $object = false)
@@ -16,32 +19,34 @@ trait Query
 
     public function selectConfig()
     {
-        $this->operation = "select";
+        $this->operation = Operation::Select;
 
         if(!$this->columns) {
-            $this->columns = "* ";
+            $this->columns = "*";
         }
 
         $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
     }
 
-    public function find(int $id)
+    public function find(int $id): object
     {
         $this->selectConfig();
         
-        $this->where .= "WHERE id={$id}";
+        $this->where .= "WHERE id= ?";
 
-        return $this->execute();
+        $this->params[] = $id;
+
+        return $this->get(true);
     }
 
-    public function all()
+    public function all(): array
     {
         $this->selectConfig();
 
         return $this->execute();
     }
 
-    public function where(array $where)
+    public function where(array $where): Model
     {
         $this->where = "WHERE ";
 
@@ -51,7 +56,7 @@ trait Query
         if($multi == 0){
             foreach($where as $key => $value){
                 if($key == 0){
-                    $value = "`{$value}`";
+                    $value = "{$this->table}.{$value}";
                 }
                 if($key == 2){
                     $this->params[] = $value;
@@ -66,7 +71,7 @@ trait Query
             foreach($where as $key => $value){
                 foreach($value as $id => $ele){
                     if($id == 0){
-                        $value = "`{$ele}`";
+                        $value = "{$this->table}.{$ele}";
                     }
                     if($id == 2){
                         $this->params[] = $ele;

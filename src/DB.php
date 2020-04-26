@@ -36,7 +36,7 @@ class Db
         }
     }
 
-    public static function table(string $table): object
+    public static function table(string $table): Model
     {
         return new class($table) extends Model {
             protected $table;
@@ -61,7 +61,7 @@ class Db
         }
     }
 
-    public static function bruteSQL($sql, $params = [])
+    public static function bruteSQL($sql, $params = []): bool
     {
         try {
             $stmt = self::connection()->prepare($sql);

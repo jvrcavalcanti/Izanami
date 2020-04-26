@@ -2,11 +2,14 @@
 
 namespace Accolon\DataLayer\Traits;
 
+use Accolon\DataLayer\Model;
+use Accolon\DataLayer\Operation;
+
 trait CRUD
 {
-    public function select(array $cols = ["*"])
+    public function select(array $cols = ["*"]): Model
     {
-        $this->operation = "select";
+        $this->operation = Operation::Select;
 
         $this->columns = "";
 
@@ -19,9 +22,9 @@ trait CRUD
         return $this;
     }
 
-    public function delete()
+    public function delete(): bool
     {
-        $this->operation = "delete";
+        $this->operation = Operation::Delete;
         $this->statement = "DELETE FROM {$this->table} ";
         return $this->execute();
     }
@@ -29,7 +32,7 @@ trait CRUD
     public function save(): bool
     {
         $exceptions = ["table", "limit", "columns", "statement", "params", "operation", "where", "offset", "order"];
-        $this->operation = "insert";
+        $this->operation = Operation::Insert;
 
         $fields = [];
         $values = [];
@@ -51,7 +54,7 @@ trait CRUD
 
     public function update(array $cols)
     {
-        $this->operation = "update";
+        $this->operation = Operation::Update;
 
         $set = "";
 
