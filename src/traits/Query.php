@@ -7,14 +7,19 @@ use Accolon\DataLayer\Operation;
 
 trait Query
 {
-    public function get(bool $object = false)
+    public function getAll()
     {
         $this->selectConfig();
 
-        $result = $this->execute(!$object);
+        return $this->execute(true);
+    }
+
+    public function get()
+    {
+        $this->selectConfig();
 
         // return $result && sizeof($result) == 1 ? $result[0] : $result;
-        return $result;
+        return $this->execute(false);
     }
 
     public function selectConfig()

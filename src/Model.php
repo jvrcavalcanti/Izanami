@@ -9,7 +9,7 @@ use Accolon\DataLayer\Db;
 use Accolon\DataLayer\Traits\CRUD;
 use Accolon\DataLayer\Traits\Query;
 
-abstract class Model
+abstract class Model extends Db
 {
     use Query, CRUD;
 

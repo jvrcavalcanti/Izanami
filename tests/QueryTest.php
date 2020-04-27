@@ -13,13 +13,22 @@ class QueryTest extends TestCase
         $this->assertNotNull($db->find(1));
     }
 
+    public function testGetAll()
+    {
+        $db = DB::table('users');
+        
+        $result = $db->select(["id, username"])->getAll();
+
+        $this->assertIsArray($result);
+    }
+
     public function testMultipleWhere()
     {
         $db = DB::table('users');
         $result = $db->where([
             ["id", "=", 1],
             ["username", "=", "Teste"]
-        ])->get(false);
+        ])->get();
         $this->assertNotNull($result);
     }
 

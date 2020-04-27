@@ -29,19 +29,16 @@ trait CRUD
         return $this->execute();
     }
 
-    public function save(): bool
+    public function create(array $data): bool
     {
-        $exceptions = ["table", "limit", "columns", "statement", "params", "operation", "where", "offset", "order"];
         $this->operation = Operation::Insert;
 
         $fields = [];
         $values = [];
 
-        foreach($this as $key => $value) {
-            if(!in_array($key, $exceptions)){
-                $fields[] = "`{$key}`";
-                $values[] = "'{$value}'";
-            }
+        foreach($data as $key => $value) {
+            $fields[] = "`{$key}`";
+            $values[] = "'{$value}'";
         }
 
         $fields = "(" . implode(", ", $fields) . ")";
@@ -49,7 +46,22 @@ trait CRUD
 
         $this->statement = "INSERT INTO {$this->table} {$fields} VALUES {$values}";
 
-        return $this->execute();    
+        return $this->execute();
+    }
+
+    public function save(): bool
+    {
+        $exceptions = ["table", "limit", "columns", "statement", "params", "operation", "where", "offset", "order"];
+
+        $data = [];
+
+        foreach($this as $key => $value) {
+            if(!in_array($key, $exceptions)){
+                $data[$key] = $value;
+            }
+        }
+
+        return $this->create($data);    
     }
 
     public function update(array $cols)

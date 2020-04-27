@@ -9,7 +9,7 @@ use PDOException;
 
 class Db
 {
-    private static $instance;
+    protected static $instance;
 
     public static function connection(): PDO
     {
