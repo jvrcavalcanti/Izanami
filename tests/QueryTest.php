@@ -25,11 +25,13 @@ class QueryTest extends TestCase
     public function testMultipleWhere()
     {
         $db = DB::table('users');
+        
         $result = $db->where([
             ["id", "=", 1],
             ["username", "=", "Teste"]
         ])->get();
-        $this->assertNotNull($result);
+
+        $this->assertIsObject($result);
     }
 
     public function testLimit()

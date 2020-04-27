@@ -19,7 +19,9 @@ trait Query
         $this->selectConfig();
 
         // return $result && sizeof($result) == 1 ? $result[0] : $result;
-        return $this->execute(false);
+        $result = $this->execute(false);
+
+        return $result;
     }
 
     public function selectConfig()
@@ -41,14 +43,14 @@ trait Query
 
         $this->params[] = $id;
 
-        return $this->get(true);
+        return $this->get();
     }
 
     public function all(): array
     {
         $this->selectConfig();
 
-        return $this->execute();
+        return $this->getAll();
     }
 
     public function where(array $where): Model

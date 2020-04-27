@@ -22,6 +22,22 @@ abstract class Model extends Db
     private ?int $operation = 0;
     private ?string $where = "";
 
+    public function __construct(object $obj = null)
+    {
+        $this->persist($obj);
+    }
+
+    public function persist(?object $obj): void
+    {
+        if (!$obj) {
+            return;
+        }
+
+        foreach($obj as $attr => $value) {
+            $this->$attr = $value;
+        }
+    }
+
     public function clear()
     {
         $attrs = ["limit", "offset", "columns", "order", "statement", "params", "operation", "where"];
@@ -93,7 +109,15 @@ abstract class Model extends Db
                 return $stmt->fetchAll();
             }
             
-            return $stmt->fetchObject();
+            $result = $stmt->fetchObject();
+
+            $obj = new $this($result);
+
+            $obj->persist($result);
+
+            $obj->table = $this->table;
+
+            return $obj;
 
         }catch(PDOException $e){
             // echo $this->statement . $this->where . $this->order . $this->limit . $this->offset; // Debug
