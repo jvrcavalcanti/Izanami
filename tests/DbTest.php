@@ -1,6 +1,7 @@
 <?php
 
 require_once "./vendor/autoload.php";
+require_once "./tests/User.php";
 
 use Accolon\DataLayer\Db;
 use PHPUnit\Framework\TestCase;

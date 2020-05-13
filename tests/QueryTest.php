@@ -2,20 +2,21 @@
 
 use Accolon\DataLayer\Db;
 use PHPUnit\Framework\TestCase;
+use Test\User;
 
-require_once "./vendor/autoload.php";
+// require_once "./vendor/autoload.php";
 
 class QueryTest extends TestCase
 {
     public function testFind(): void
     {
-        $db = Db::table('users');
+        $db = new User();
         $this->assertNotNull($db->find(1));
     }
 
     public function testGetAll()
     {
-        $db = DB::table('users');
+        $db = new User();
         
         $result = $db->select(["id, username"])->getAll();
 

@@ -9,7 +9,7 @@ use Accolon\DataLayer\Db;
 use Accolon\DataLayer\Traits\CRUD;
 use Accolon\DataLayer\Traits\Query;
 
-abstract class Model extends Db
+abstract class Model
 {
     use Query, CRUD;
 
@@ -86,10 +86,17 @@ abstract class Model extends Db
     public function execute(bool $all = true)
     {
         try{
-            $stmt = Db::connection()->prepare(
+            $db = Db::connection();
+
+            $db->beginTransaction();
+
+            $stmt = $db->prepare(
                 $this->statement . $this->where . $this->order . $this->limit . $this->offset
             );
+
             $result = $stmt->execute($this->params);
+
+            $db->commit();
 
             if(!$stmt->rowCount()){
                 return null;
@@ -97,6 +104,10 @@ abstract class Model extends Db
 
             if($this->operation == Operation::Count) {
                 return $stmt->rowCount();
+            }
+
+            if ($this->operation == Operation::Insert) {
+                $this->id = $db->lastInsertId();
             }
 
             if($this->operation != Operation::Select){
@@ -121,6 +132,7 @@ abstract class Model extends Db
 
         }catch(PDOException $e){
             // echo $this->statement . $this->where . $this->order . $this->limit . $this->offset; // Debug
+            $db->rollBack();
             die("Error: {$e->getMessage()}");
         }
     }

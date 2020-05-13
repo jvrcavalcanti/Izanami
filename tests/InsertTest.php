@@ -1,16 +1,16 @@
 <?php
 
-use Accolon\DataLayer\Db;
 use PHPUnit\Framework\TestCase;
+use Test\User;
 
 class InsertTest extends TestCase
 {
     public function testSave()
     {
-        $db = DB::table('users');
+        $db = new User();
 
         $db->username = "Test Create";
-        $db->password = "123456";
+        $db->setPassword("123456");
 
         $result = $db->save();
 
@@ -23,7 +23,7 @@ class InsertTest extends TestCase
 
     public function testCreate()
     {
-        $db = DB::table('users');
+        $db = new User();
 
         $result = $db->create([
             "username" => "Test Create",

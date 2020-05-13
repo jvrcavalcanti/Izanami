@@ -28,7 +28,7 @@ trait Query
     {
         $this->operation = Operation::Select;
 
-        if(!$this->columns) {
+        if(!$this->columns || $this->columns == "") {
             $this->columns = "*";
         }
 
