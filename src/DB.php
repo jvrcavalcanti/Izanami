@@ -37,14 +37,16 @@ class Db
         }
     }
 
-    public static function table(string $table): Model
+    public static function table(string $tableName): Model
     {
-        return new class($table) extends Model {
-            protected $table;
+        return new class($tableName) extends Model {
+            protected string $table;
 
-            public function __construct($table)
+            public function __construct($tableName = null)
             {
-                $this->table = $table;
+                if (is_string($tableName)) {
+                    $this->table = $tableName;
+                }   
             }
         };
     }

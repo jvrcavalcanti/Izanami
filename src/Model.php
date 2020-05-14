@@ -22,18 +22,9 @@ abstract class Model
     private ?int $operation = 0;
     private ?string $where = "";
 
-    public function __construct(object $obj = null)
+    public function persist($iterable): void
     {
-        $this->persist($obj);
-    }
-
-    public function persist(?object $obj): void
-    {
-        if (!$obj) {
-            return;
-        }
-
-        foreach($obj as $attr => $value) {
+        foreach($iterable as $attr => $value) {
             $this->$attr = $value;
         }
     }
@@ -122,7 +113,7 @@ abstract class Model
             
             $result = $stmt->fetchObject();
 
-            $obj = new $this($result);
+            $obj = new $this();
 
             $obj->persist($result);
 

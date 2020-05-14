@@ -13,6 +13,11 @@ class User extends Model
 
     protected string $password;
 
+    public function __construct()
+    {
+        //
+    }
+
     public function getPassword()
     {
         return $this->password;
