@@ -3,6 +3,7 @@
 namespace Test;
 
 use Accolon\DataLayer\Model;
+use ReflectionClass;
 
 class User extends Model
 {
@@ -16,6 +17,11 @@ class User extends Model
     public function __construct()
     {
         //
+    }
+
+    public static function build(): User
+    {
+        return (new ReflectionClass(self::class))->newInstance();
     }
 
     public function getPassword()

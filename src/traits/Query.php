@@ -7,7 +7,7 @@ use Accolon\DataLayer\Operation;
 
 trait Query
 {
-    public function getAll()
+    public function getAll(): ?array
     {
         $this->selectConfig();
 
@@ -46,7 +46,7 @@ trait Query
         return $this->get();
     }
 
-    public function all(): array
+    public function all(): ?array
     {
         $this->selectConfig();
 

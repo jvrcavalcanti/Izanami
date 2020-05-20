@@ -33,7 +33,6 @@ abstract class Model
     {
         $attrs = ["limit", "offset", "columns", "order", "statement", "params", "operation", "where"];
         foreach($attrs as $attr) {
-
             $this->$attr = null;
         }
     }

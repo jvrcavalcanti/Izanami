@@ -5,6 +5,7 @@ require_once "./tests/User.php";
 
 use Accolon\DataLayer\Db;
 use PHPUnit\Framework\TestCase;
+use Test\User;
 
 class DbTest extends TestCase
 {
@@ -16,5 +17,10 @@ class DbTest extends TestCase
     public function testCreateObject(): void
     {
         $this->assertIsObject(Db::table('users'));
+    }
+
+    public function testFactory()
+    {
+        $this->assertInstanceOf(User::class, User::build());
     }
 }
