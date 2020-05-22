@@ -13,14 +13,14 @@ abstract class Model
 {
     use Query, CRUD;
 
-    private ?string $limit = "";
-    private ?string $columns = "";
-    private ?string $offset = "";
-    private ?string $order = "";
-    private ?string $statement = "";
-    private ?array $params = [];
-    private ?int $operation = 0;
-    private ?string $where = "";
+    private string $limit = "";
+    private string $columns = "";
+    private string $offset = "";
+    private string $order = "";
+    private string $statement = "";
+    private array $params = [];
+    private int $operation = 0;
+    private string $where = "";
 
     public function persist($iterable): void
     {
@@ -33,7 +33,17 @@ abstract class Model
     {
         $attrs = ["limit", "offset", "columns", "order", "statement", "params", "operation", "where"];
         foreach($attrs as $attr) {
-            $this->$attr = null;
+            if (is_string($attr)) {
+                $this->$attr = "";
+            }
+
+            if (is_int($attr)) {
+                $this->$attr = 0;
+            }
+
+            if (is_array($attr)) {
+                $this->$attr = [];
+            }
         }
     }
 
@@ -88,37 +98,36 @@ abstract class Model
 
             $db->commit();
 
-            if(!$stmt->rowCount()){
-                return null;
+            switch($this->operation) {
+                case Operation::Count:
+                    return $stmt->rowCount();
+
+                case Operation::Select:
+                    if(!$stmt->rowCount()){
+                        return null;
+                    }
+
+                    if ($all) {
+                        return $stmt->fetchAll();
+                    }
+
+                    $result = $stmt->fetchObject();
+
+                    $obj = new $this();
+
+                    $obj->persist($result);
+
+                    $obj->table = $this->table;
+
+                    return $obj;
+
+                case Operation::Insert:
+                    $this->id = $db->lastInsertId();
+
+                default:
+                    return $result;
+
             }
-
-            if($this->operation == Operation::Count) {
-                return $stmt->rowCount();
-            }
-
-            if ($this->operation == Operation::Insert) {
-                $this->id = $db->lastInsertId();
-            }
-
-            if($this->operation != Operation::Select){
-                return $result;
-            }
-
-            $this->clear();
-
-            if($all){
-                return $stmt->fetchAll();
-            }
-            
-            $result = $stmt->fetchObject();
-
-            $obj = new $this();
-
-            $obj->persist($result);
-
-            $obj->table = $this->table;
-
-            return $obj;
 
         }catch(PDOException $e){
             // echo $this->statement . $this->where . $this->order . $this->limit . $this->offset; // Debug

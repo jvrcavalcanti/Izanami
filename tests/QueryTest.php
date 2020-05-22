@@ -26,24 +26,47 @@ class QueryTest extends TestCase
     public function testMultipleWhere()
     {
         $db = DB::table('users');
+
+        $result = $db->create([
+            "username" => "TesteCreate",
+            "password" => "123456"
+        ]);
         
         $result = $db->where([
-            ["id", "=", 1],
-            ["username", "=", "Teste"]
+            ["password", "=", "123456"],
+            ["username", "=", "TesteCreate"]
         ])->get();
 
         $this->assertIsObject($result);
+
+        if ($result) {
+            $db->where(["username", "=", "TestCreate"])->delete();
+        }
     }
 
     public function testLimit()
     {
         $db = DB::table('users');
 
+        $result = $db->create([
+            "username" => "TesteCreate",
+            "password" => "123456"
+        ]);
+
+        $result2 = $db->create([
+            "username" => "TesteCreate2",
+            "password" => "123456"
+        ]);
+
         $cont = 2;
 
         $result = $db->limit($cont)->all();
 
         $this->assertEquals($cont, sizeof($result));
+
+        if ($result || $result2 ) {
+            $db->where(["password", "=", "123456"])->delete();
+        }
     }
 
     public function testQueryAll(): void

@@ -26,14 +26,47 @@ class InsertTest extends TestCase
         $db = new User();
 
         $result = $db->create([
-            "username" => "Test Create",
+            "username" => "Test Create 2",
             "password" => "123456"
         ]);
 
         $this->assertTrue($result);
 
         if ($result) {
-            $db->where(["username", "=", "Test Create"])->delete();
+            $db->where(["username", "=", "Test Create 2"])->delete();
+        }
+    }
+
+    public function testCreateMany()
+    {
+        $db = new User();
+
+        $count = $db->count();
+
+        $result = $db->createMany([
+            [
+                "username" => "Test 1",
+                "password" => "1"
+            ],
+            [
+                "username" => "Test 2",
+                "password" => "2"
+            ]
+        ]);
+
+        $this->assertEquals($count + 2, $db->count());
+
+        if ($result) {
+            $db->where([
+                [
+                    "username" => "Test 1",
+                    "password" => "1"
+                ],
+                [
+                    "username" => "Test 2",
+                    "password" => "2"
+                ]
+            ])->delete();
         }
     }
 }
