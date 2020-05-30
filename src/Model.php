@@ -85,54 +85,43 @@ abstract class Model
 
     public function execute(bool $all = true)
     {
-        try{
-            $db = Db::connection();
+        $db = Db::connection();
 
-            $db->beginTransaction();
+        $stmt = $db->prepare(
+            $this->statement . $this->where . $this->order . $this->limit . $this->offset
+        );
 
-            $stmt = $db->prepare(
-                $this->statement . $this->where . $this->order . $this->limit . $this->offset
-            );
+        $result = $stmt->execute($this->params);
 
-            $result = $stmt->execute($this->params);
+        switch($this->operation) {
+            case Operation::Count:
+                return $stmt->rowCount();
 
-            $db->commit();
+            case Operation::Select:
+                if(!$stmt->rowCount()){
+                    return null;
+                }
 
-            switch($this->operation) {
-                case Operation::Count:
-                    return $stmt->rowCount();
+                if ($all) {
+                    return $stmt->fetchAll();
+                }
 
-                case Operation::Select:
-                    if(!$stmt->rowCount()){
-                        return null;
-                    }
+                $result = $stmt->fetchObject();
 
-                    if ($all) {
-                        return $stmt->fetchAll();
-                    }
+                $obj = new $this();
 
-                    $result = $stmt->fetchObject();
+                $obj->persist($result);
 
-                    $obj = new $this();
+                $obj->table = $this->table;
 
-                    $obj->persist($result);
+                return $obj;
 
-                    $obj->table = $this->table;
+            case Operation::Insert:
+                $this->id = $db->lastInsertId();
 
-                    return $obj;
+            default:
+                return $result;
 
-                case Operation::Insert:
-                    $this->id = $db->lastInsertId();
-
-                default:
-                    return $result;
-
-            }
-
-        }catch(PDOException $e){
-            // echo $this->statement . $this->where . $this->order . $this->limit . $this->offset; // Debug
-            $db->rollBack();
-            die("Error: {$e->getMessage()}");
         }
     }
 }
