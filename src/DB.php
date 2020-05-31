@@ -3,7 +3,7 @@
 namespace Accolon\DataLayer;
 
 use Accolon\DataLayer\Model;
-
+use Closure;
 use PDO;
 use PDOException;
 
@@ -75,5 +75,31 @@ class Db
         } catch(PDOException $e) {
             die($e->getMessage());
         }
+    }
+
+    public static function transaction(Closure $callback)
+    {
+        try {
+            Db::beginTransaction();
+            $callback();
+            Db::commit();
+        } catch (PDOException $e) {
+            Db::rollBack();
+        }
+    }
+
+    public static function beginTransaction()
+    {
+        Db::connection()->beginTransaction();
+    }
+
+    public static function commit()
+    {
+        Db::connection()->commit();
+    }
+
+    public static function rollBack()
+    {
+        Db::connection()->rollBack();
     }
 }

@@ -95,14 +95,17 @@ abstract class Model
 
         switch($this->operation) {
             case Operation::Count:
+                $this->clear();
                 return $stmt->rowCount();
 
             case Operation::Select:
                 if(!$stmt->rowCount()){
+                    $this->clear();
                     return null;
                 }
 
                 if ($all) {
+                    $this->clear();
                     return $stmt->fetchAll();
                 }
 
@@ -114,12 +117,15 @@ abstract class Model
 
                 $obj->table = $this->table;
 
+                $this->clear();
+
                 return $obj;
 
             case Operation::Insert:
                 $this->id = $db->lastInsertId();
 
             default:
+                $this->clear();
                 return $result;
 
         }
