@@ -2,6 +2,7 @@
 
 namespace Accolon\DataLayer;
 
+use Accolon\DataLayer\Exceptions\TransactionException;
 use Accolon\DataLayer\Model;
 use Closure;
 use PDO;
@@ -85,6 +86,7 @@ class Db
             Db::commit();
         } catch (PDOException $e) {
             Db::rollBack();
+            throw new TransactionException("Transaction roll back");
         }
     }
 
