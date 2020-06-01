@@ -13,14 +13,14 @@ abstract class Model
 {
     use Query, CRUD;
 
-    private string $limit = "";
-    private string $columns = "";
-    private string $offset = "";
-    private string $order = "";
-    private string $statement = "";
-    private array $params = [];
-    private int $operation = 0;
-    private string $where = "";
+    private $limit = "";
+    private $columns = "";
+    private $offset = "";
+    private $order = "";
+    private $statement = "";
+    private $params = [];
+    private $operation = 0;
+    private $where = "";
 
     public function persist($iterable): void
     {
@@ -33,17 +33,7 @@ abstract class Model
     {
         $attrs = ["limit", "offset", "columns", "order", "statement", "params", "operation", "where"];
         foreach($attrs as $attr) {
-            if (is_string($attr)) {
-                $this->$attr = "";
-            }
-
-            if (is_int($attr)) {
-                $this->$attr = 0;
-            }
-
-            if (is_array($attr)) {
-                $this->$attr = [];
-            }
+            $this->$attr = null;
         }
     }
 
