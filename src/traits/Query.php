@@ -11,7 +11,13 @@ trait Query
     {
         $this->selectConfig();
 
-        return $this->execute(true) ?? [];
+        $result = $this->execute(true);
+
+        if (!$result) {
+            return [];
+        }
+
+        return array_map(fn($obj) => static::build($this->table, $obj), $result);
     }
 
     public function get()
@@ -21,7 +27,7 @@ trait Query
         // return $result && sizeof($result) == 1 ? $result[0] : $result;
         $result = $this->execute(false);
 
-        return $result;
+        return $result ? static::build($this->table, $result) : null;
     }
 
     public function selectConfig()
@@ -35,7 +41,7 @@ trait Query
         $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
     }
 
-    public function find(int $id): object
+    public function find(int $id)
     {
         $this->selectConfig();
         

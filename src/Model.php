@@ -8,6 +8,7 @@ use PDOException;
 use Accolon\DataLayer\Db;
 use Accolon\DataLayer\Traits\CRUD;
 use Accolon\DataLayer\Traits\Query;
+use ReflectionClass;
 
 abstract class Model
 {
@@ -22,8 +23,19 @@ abstract class Model
     private $operation = 0;
     private $where = "";
 
+    public function __construct(string $table = "")
+    {
+        if (!isset($this->table)) {
+            $this->table = $table;
+        }
+    }
+
     public function persist($iterable): void
     {
+        if (!is_array($iterable) && !is_object($iterable)) {
+            throw new \Exception("Not's iterable");
+        }
+
         foreach($iterable as $attr => $value) {
             $this->$attr = $value;
         }
@@ -73,6 +85,22 @@ abstract class Model
         return $this;
     }
 
+    public static function build(string $table, $data): Model
+    {
+        $refletor = new ReflectionClass(static::class);
+
+        $obj = $refletor->newInstance($table);
+
+        $obj->persist($data);
+
+        return $obj;
+    }
+
+    public function getStatement()
+    {
+        return $this->statement . $this->where . $this->order . $this->limit . $this->offset;
+    }
+
     public function execute(bool $all = true)
     {
         $db = Db::connection();
@@ -101,15 +129,9 @@ abstract class Model
 
                 $result = $stmt->fetchObject();
 
-                $obj = new $this();
-
-                $obj->persist($result);
-
-                $obj->table = $this->table;
-
                 $this->clear();
 
-                return $obj;
+                return $result;
 
             case Operation::Insert:
                 $this->id = $db->lastInsertId();
