@@ -2,7 +2,7 @@
 
 use Accolon\DataLayer\Db;
 use PHPUnit\Framework\TestCase;
-use Test\User;
+use Test\Test;
 
 // require_once "./vendor/autoload.php";
 
@@ -10,13 +10,13 @@ class QueryTest extends TestCase
 {
     public function testFind(): void
     {
-        $db = new User();
+        $db = new Test();
         $this->assertNotNull($db->find(1));
     }
 
     public function testGetAll()
     {
-        $db = new User();
+        $db = new Test();
         
         $result = $db->select(["id, username"])->getAll();
 
@@ -25,71 +25,50 @@ class QueryTest extends TestCase
 
     public function testMultipleWhere()
     {
-        $db = DB::table('users');
-
-        $result = $db->create([
-            "username" => "TesteCreate",
-            "password" => "123456"
-        ]);
+        $db = DB::table('test');
         
         $result = $db->where([
-            ["password", "=", "123456"],
-            ["username", "=", "TesteCreate"]
+            ["id", "=", 1],
+            ["username", "=", "Test"]
         ])->get();
 
-        $this->assertIsObject($result);
+        // var_dump(json_encode($result));
 
-        if ($result) {
-            $db->where(["username", "=", "TestCreate"])->delete();
-        }
+        $this->assertIsObject($result);
     }
 
     public function testLimit()
     {
-        $db = DB::table('users');
-
-        $result = $db->create([
-            "username" => "TesteCreate",
-            "password" => "123456"
-        ]);
-
-        $result2 = $db->create([
-            "username" => "TesteCreate2",
-            "password" => "123456"
-        ]);
+        $db = DB::table('test');
 
         $cont = 2;
 
         $result = $db->limit($cont)->all();
 
         $this->assertEquals($cont, sizeof($result));
-
-        if ($result || $result2 ) {
-            $db->where(["password", "=", "123456"])->delete();
-        }
     }
 
     public function testQueryAll(): void
     {
-        $db = Db::table("users");
+        $db = DB::table('test');
         $this->assertTrue(is_array($db->all()));
     }
 
     public function testQueryObject(): void
     {
-        $db = Db::table("users");
+        $db = DB::table('test');
         $this->assertTrue(is_object($db->get(true)));
     }
 
     public function testBruteSql(): void
     {
-        $db = Db::bruteSql("SELECT * FROM users WHERE id = 1");
+        $db = Db::bruteSql("SELECT * FROM test WHERE id = 1");
         $this->assertTrue($db);
     }
 
     public function testCount(): void
     {
-        $db = Db::table("users");
+        $db = DB::table('test');
         $this->assertIsInt($db->count());
     }
 }

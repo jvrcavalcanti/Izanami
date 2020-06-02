@@ -8,10 +8,10 @@ class UpdateTest extends TestCase
 {
     public function testUpdate(): void
     {
-        $db = Db::table('users');
+        $db = Db::table('test');
 
         $result = $db->where(["username", "=", "Teste"])->update([
-            "email" => "teste@gmail.com"
+            "password" => "654321"
         ]);
 
         $this->assertTrue($result);
@@ -19,10 +19,10 @@ class UpdateTest extends TestCase
 
     public function testUpdateTest()
     {
-        $db = Db::table('users');
+        $db = Db::table('test');
 
         $result = $db->where(["username", "=", "Teste"])->update([
-            "email" => "test@gmail.com"
+            "password" => "123456"
         ]);
 
         $this->assertTrue($result);
