@@ -30,7 +30,14 @@ trait Query
         return $result ? static::build($this->table, $result) : null;
     }
 
-    public function selectConfig()
+    public function exist(): bool
+    {
+        $result = $this->selectConfig()->get();
+
+        return $result ? true : false;
+    }
+
+    public function selectConfig(): Model
     {
         $this->operation = Operation::Select;
 
@@ -39,17 +46,33 @@ trait Query
         }
 
         $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
+
+        return $this;
     }
 
-    public function find(int $id)
+    public function addParam($param)
     {
-        $this->selectConfig();
-        
-        $this->where .= "WHERE id= ?";
+        $this->params[] = $param;
+    }
 
-        $this->params[] = $id;
+    public function addParams(array $params)
+    {
+        $this->params = [...$this->params, ...$params];
+    }
 
-        return $this->get();
+    public function getParams(): array
+    {
+        return $this->params ?? [];
+    }
+
+    public function findById(int $id)
+    {
+        return $this->selectConfig()->where(["id", "=", $id])->get();
+    }
+
+    public function find(string $field, string $value)
+    {
+        return $this->selectConfig()->where([$field, "=", $value])->get();
     }
 
     public function all(): array
@@ -72,7 +95,7 @@ trait Query
                     $value = "{$this->table}.{$value}";
                 }
                 if($key == 2){
-                    $this->params[] = $value;
+                    $this->addParam($value);
                     $value = "?";
                 }
                 $this->where .= $value . " ";
@@ -87,7 +110,7 @@ trait Query
                         $value = "{$this->table}.{$ele}";
                     }
                     if($id == 2){
-                        $this->params[] = $ele;
+                        $this->addParam($ele);
                         $ele = "?";
                     }
                     $this->where .= $ele . " ";

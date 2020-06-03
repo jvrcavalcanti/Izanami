@@ -8,10 +8,39 @@ use Test\Test;
 
 class QueryTest extends TestCase
 {
-    public function testFind(): void
+    public function testFindById(): void
     {
         $db = new Test();
-        $this->assertNotNull($db->find(1));
+        $this->assertNotNull($db->findById(1));
+    }
+
+    public function testaddParams()
+    {
+        $db = new Test();
+
+        $db->addParam("1");
+        $db->addParams([2, 3]);
+
+        $this->assertEquals(
+            ["1", 2, 3],
+            $db->getParams()
+        );
+    }
+
+    public function testExist()
+    {
+        $db = new Test();
+
+        $this->assertTrue(
+            $db->where(["id", "=", 1])->exist()
+        );
+    }
+
+    public function testFind()
+    {
+        $db = new Test();
+
+        $this->assertNotNull($db->find("username", "Test"));
     }
 
     public function testGetAll()
