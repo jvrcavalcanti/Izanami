@@ -46,12 +46,18 @@ trait CRUD
 
         $this->statement = "INSERT INTO {$this->table} {$fields} VALUES {$values}";
 
-        return $this->execute();
+        $result = $this->execute();
+
+        if ($result) {
+            $this->persist($data);
+        }
+
+        return $result;
     }
 
     public function save(): bool
     {
-        $exceptions = ["table", "limit", "columns", "statement", "params", "operation", "where", "offset", "order"];
+        $exceptions = ["attributes", "table", "limit", "columns", "statement", "params", "operation", "where", "offset", "order"];
 
         $data = [];
 

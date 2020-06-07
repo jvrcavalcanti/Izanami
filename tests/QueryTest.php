@@ -1,6 +1,7 @@
 <?php
 
 use Accolon\DataLayer\Db;
+use Accolon\DataLayer\Model;
 use PHPUnit\Framework\TestCase;
 use Test\Test;
 
@@ -12,6 +13,15 @@ class QueryTest extends TestCase
     {
         $db = new Test();
         $this->assertNotNull($db->findById(1));
+    }
+
+    public function testWhenTrue()
+    {
+        $db = new Test();
+
+        $db->when(true, fn(Model $db) => $db->where("id", 1));
+
+        $this->assertIsObject($db->get());
     }
 
     public function testaddParams()
@@ -27,12 +37,12 @@ class QueryTest extends TestCase
         );
     }
 
-    public function testExist()
+    public function testExists()
     {
         $db = new Test();
 
         $this->assertTrue(
-            $db->where(["id", "=", 1])->exist()
+            $db->where(["id", "=", 1])->exists()
         );
     }
 
@@ -57,7 +67,7 @@ class QueryTest extends TestCase
         $db = DB::table('test');
         
         $result = $db->where([
-            ["id", "=", 1],
+            ["id", 1],
             ["username", "=", "Test"]
         ])->get();
 

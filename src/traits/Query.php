@@ -24,13 +24,12 @@ trait Query
     {
         $this->selectConfig();
 
-        // return $result && sizeof($result) == 1 ? $result[0] : $result;
         $result = $this->execute(false);
 
         return $result ? static::build($this->table, $result) : null;
     }
 
-    public function exist(): bool
+    public function exists(): bool
     {
         $result = $this->selectConfig()->get();
 
@@ -67,12 +66,12 @@ trait Query
 
     public function findById(int $id)
     {
-        return $this->selectConfig()->where(["id", "=", $id])->get();
+        return $this->selectConfig()->where("id", $id)->get();
     }
 
     public function find(string $field, string $value)
     {
-        return $this->selectConfig()->where([$field, "=", $value])->get();
+        return $this->selectConfig()->where($field, $value)->get();
     }
 
     public function all(): array
@@ -82,40 +81,43 @@ trait Query
         return $this->getAll();
     }
 
-    public function where(array $where): Model
+    public function where($statements): Model
     {
         $this->where = "WHERE ";
 
+        if (!is_array($statements)) {
+            $statements = func_get_args();
+        }
+
         // Verifica se é multidimensional, se sim retorna 1 ou maior
-        $multi = array_sum(array_map("is_array", $where));
+        $multi = array_sum(array_map("is_array", $statements));
         
         if($multi == 0){
-            foreach($where as $key => $value){
-                if($key == 0){
-                    $value = "{$this->table}.{$value}";
-                }
-                if($key == 2){
-                    $this->addParam($value);
-                    $value = "?";
-                }
-                $this->where .= $value . " ";
+            if (sizeof($statements) == 2) {
+                $this->addParam($statements[1]);
+                $this->where .= "{$this->table}.{$statements[0]} = ?";
+            }
+
+            if (sizeof($statements) == 3) {
+                $this->addParam($statements[2]);
+                $this->where .= "{$this->table}.{$statements[0]} {$statements[1]} ?";
             }
             return $this;
         }
 
         if($multi > 0) {
-            foreach($where as $key => $value){
-                foreach($value as $id => $ele){
-                    if($id == 0){
-                        $value = "{$this->table}.{$ele}";
-                    }
-                    if($id == 2){
-                        $this->addParam($ele);
-                        $ele = "?";
-                    }
-                    $this->where .= $ele . " ";
+            foreach($statements as $key => $value){
+                if (sizeof($value) == 2) {
+                    $this->addParam($value[1]);
+                    $this->where .= "{$this->table}.{$value[0]} = ? ";
                 }
-                if(count($where) - 1 != $key){
+                
+                if (sizeof($value) == 3) {
+                    $this->addParam($value[2]);
+                    $this->where .= "{$this->table}.{$value[0]} {$value[1]} ? ";
+                }
+
+                if(count($statements) - 1 != $key){
                     $this->where .= "AND ";
                 }
             }

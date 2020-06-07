@@ -8,6 +8,7 @@ use PDOException;
 use Accolon\DataLayer\Db;
 use Accolon\DataLayer\Traits\CRUD;
 use Accolon\DataLayer\Traits\Query;
+use Closure;
 use ReflectionClass;
 
 abstract class Model
@@ -22,12 +23,28 @@ abstract class Model
     private $params = [];
     private $operation = 0;
     private $where = "";
+    private $attributes = [];
 
     public function __construct(string $table = "")
     {
         if (!isset($this->table)) {
             $this->table = $table;
         }
+    }
+
+    public static function attributesModel()
+    {
+        return [
+            "limit",
+            "offset",
+            "columns",
+            "order",
+            "statement",
+            "params",
+            "operation",
+            "where",
+            "attributes"
+        ];
     }
 
     public function persist($iterable): void
@@ -41,9 +58,18 @@ abstract class Model
         }
     }
 
+    public function when(bool $option, Closure $action): Model
+    {
+        if ($option) {
+            $action($this);
+        }
+
+        return $this;
+    }
+
     public function clear()
     {
-        $attrs = ["limit", "offset", "columns", "order", "statement", "params", "operation", "where"];
+        $attrs = self::attributesModel();
         foreach($attrs as $attr) {
             $this->$attr = null;
         }
@@ -109,7 +135,7 @@ abstract class Model
             $this->statement . $this->where . $this->order . $this->limit . $this->offset
         );
 
-        $result = $stmt->execute($this->params);
+        $result = $stmt->execute($this->params);        
 
         switch($this->operation) {
             case Operation::Count:
