@@ -1,6 +1,6 @@
 <?php
 
-use Accolon\DataLayer\Db;
+use Accolon\DataLayer\DB;
 use Accolon\DataLayer\Model;
 use PHPUnit\Framework\TestCase;
 use Test\Test;
@@ -15,13 +15,16 @@ class QueryTest extends TestCase
         $this->assertNotNull($db->findById(1));
     }
 
-    public function testWhenTrue()
+    public function testFindOrFail()
     {
         $db = new Test();
 
-        $db->when(true, fn(Model $db) => $db->where("id", 1));
-
-        $this->assertIsObject($db->get());
+        try {
+            $db->findOrFail("id", 5);
+            $this->assertTrue(false);
+        } catch (\Accolon\DataLayer\Exceptions\FailQueryException $e) {
+            $this->assertTrue(true);
+        }
     }
 
     public function testaddParams()

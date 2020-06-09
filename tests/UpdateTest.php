@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use Accolon\DataLayer\Db;
-use Accolon\DataLayer\Operation;
+use Test\Test;
 
 class UpdateTest extends TestCase
 {
@@ -24,6 +24,32 @@ class UpdateTest extends TestCase
         $result = $db->where(["username", "=", "Teste"])->update([
             "password" => "123456"
         ]);
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateWithSave()
+    {
+        $db = new Test();
+
+        $user = $db->findById(1);
+
+        $user->password = "654321";
+
+        $result = $user->save();
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateWithSave2()
+    {
+        $db = new Test();
+
+        $user = $db->findById(1);
+
+        $user->password = "123456";
+
+        $result = $user->save();
 
         $this->assertTrue($result);
     }

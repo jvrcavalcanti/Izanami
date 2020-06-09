@@ -8,7 +8,7 @@ use Closure;
 use PDO;
 use PDOException;
 
-class Db
+class DB
 {
     protected static $instance;
 

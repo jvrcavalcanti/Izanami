@@ -3,18 +3,18 @@
 require_once "./vendor/autoload.php";
 require_once "./tests/Test.php";
 
-use Accolon\DataLayer\Db;
+use Accolon\DataLayer\DB;
 use PHPUnit\Framework\TestCase;
 
-class DbTest extends TestCase
+class DBTest extends TestCase
 {
     public function testConnection(): void
     {
-        $this->assertIsObject(Db::connection());
+        $this->assertIsObject(DB::connection());
     }
 
     public function testCreateObject(): void
     {
-        $this->assertIsObject(Db::table('test'));
+        $this->assertIsObject(DB::table('test'));
     }
 }
