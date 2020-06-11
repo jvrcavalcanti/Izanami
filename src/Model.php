@@ -6,6 +6,7 @@ namespace Accolon\DataLayer;
 
 use Accolon\DataLayer\DB;
 use ReflectionClass;
+use Accolon\DataLayer\Exceptions\FailQueryException;
 
 abstract class Model
 {
@@ -257,7 +258,7 @@ abstract class Model
 
     public function getAll(): array
     {
-        $this->selectConfig();
+        $this->query();
 
         $result = $this->execute(true);
 
@@ -273,7 +274,7 @@ abstract class Model
 
     public function get()
     {
-        $this->selectConfig();
+        $this->query();
 
         $result = $this->execute(false);
 
@@ -282,14 +283,14 @@ abstract class Model
 
     public function exists(): bool
     {
-        $result = $this->selectConfig()->get();
+        $result = $this->query()->get();
 
         $this->exist = $result ? true : false;
 
         return $this->exist;
     }
 
-    public function selectConfig(): Model
+    public function query(): Model
     {
         $this->operation = Operation::Select;
 
@@ -319,12 +320,12 @@ abstract class Model
 
     public function findById(int $id)
     {
-        return $this->selectConfig()->where("id", $id)->get();
+        return $this->query()->where("id", $id)->get();
     }
 
     public function find(string $field, string $value)
     {
-        return $this->selectConfig()->where($field, $value)->get();
+        return $this->query()->where($field, $value)->get();
     }
 
     public function findOrFail(string $field, string $value)
@@ -332,7 +333,7 @@ abstract class Model
         $result = $this->find($field, $value);
 
         if (!$result) {
-            throw new \Accolon\DataLayer\Exceptions\FailQueryException("Find failed");
+            throw new \Exception("Find failed");
         }
 
         return $result;
@@ -340,7 +341,7 @@ abstract class Model
 
     public function all(): array
     {
-        $this->selectConfig();
+        $this->query();
 
         return $this->getAll();
     }

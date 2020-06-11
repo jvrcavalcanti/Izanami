@@ -20,9 +20,11 @@ class DB
 
                 if(!$config) return null;
 
-                self::$instance = new PDO("{$config['driver']}:host={$config['host']};port={$config['port']};charset={$config['charset']};dbname={$config['name']}",
+                self::$instance = new PDO(
+                    "{$config['driver']}:host={$config['host']};port={$config['port']};charset={$config['charset']};dbname={$config['name']}",
                     $config['user'],
-                    $config['password']);
+                    $config['password']
+                );
                     
                 self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$instance->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
