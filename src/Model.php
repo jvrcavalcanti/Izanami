@@ -333,7 +333,7 @@ abstract class Model
         $result = $this->find($field, $value);
 
         if (!$result) {
-            throw new \Exception("Find failed");
+            throw new \Accolon\DataLayer\Exceptions\FailQueryException("Find failed");
         }
 
         return $result;

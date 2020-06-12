@@ -22,7 +22,7 @@ class QueryTest extends TestCase
         try {
             $db->findOrFail("id", 5);
             $this->assertTrue(false);
-        } catch (\Exception $e) {
+        } catch (\Accolon\DataLayer\Exceptions\FailQueryException $e) {
             $this->assertTrue(true);
         }
     }
