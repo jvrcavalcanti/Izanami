@@ -33,7 +33,8 @@ abstract class Model
         $refletor = new \ReflectionClass(self::class);
         return [
             ...array_map(fn($prop) => $prop->getName(), $refletor->getProperties()),
-            "table"
+            "table",
+            "safes"
         ];
     }
 
@@ -110,6 +111,20 @@ abstract class Model
         $obj->persist($data);
 
         return $obj;
+    }
+
+    private function filter(): Model
+    {
+        $safes = isset($this->safes) ? $this->safes : [];
+        $exceptions = self::attributesModel();
+
+        foreach ($this as $attr => $value) {
+            if (!in_array($attr, $exceptions) && !in_array($attr, $safes)) {
+                unset($this->$attr);
+            }
+        }
+
+        return $this;
     }
 
     public function getStatement()
@@ -267,7 +282,7 @@ abstract class Model
         }
 
         return array_map(
-            fn($obj) => static::build($this->table, $obj)->setExist(true),
+            fn($obj) => static::build($this->table, $obj)->setExist(true)->filter(),
             $result
         );
     }
@@ -278,7 +293,7 @@ abstract class Model
 
         $result = $this->execute(false);
 
-        return $result ? static::build($this->table, $result)->setExist(true) : null;
+        return $result ? static::build($this->table, $result)->setExist(true)->filter() : null;
     }
 
     public function exists(): bool
