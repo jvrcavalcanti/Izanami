@@ -54,30 +54,17 @@ class DB
         };
     }
 
-    public static function bruteSelect($sql, $params = [])
+    public static function raw($sql, $params = [])
     {
-        try {
-            $stmt = self::connection()->prepare($sql);
-            $result = $stmt->execute($params);
-
-            return $stmt->fetchAll();
-
-        } catch(PDOException $e) {
-            die($e->getMessage());
-        }
+        $stmt = self::connection()->prepare($sql);
+        return $stmt->execute($params); 
     }
 
-    public static function bruteSQL($sql, $params = []): bool
+    public static function selectRaw($sql, $params)
     {
-        try {
-            $stmt = self::connection()->prepare($sql);
-            $result = $stmt->execute($params);
-
-            return $result;
-
-        } catch(PDOException $e) {
-            die($e->getMessage());
-        }
+        $stmt = self::connection()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
     }
 
     public static function transaction(Closure $callback)

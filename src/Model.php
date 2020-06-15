@@ -115,7 +115,7 @@ abstract class Model
 
     private function filter(): Model
     {
-        $safes = isset($this->safes) ? $this->safes : [];
+        $safes = $this->safe ?? [];
         $exceptions = self::attributesModel();
 
         foreach ($this as $attr => $value) {
