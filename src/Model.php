@@ -10,14 +10,14 @@ use Accolon\DataLayer\Exceptions\FailQueryException;
 
 abstract class Model
 {
-    private $limit = "";
-    private $columns = "";
-    private $offset = "";
-    private $order = "";
-    private $statement = "";
+    private $limit;
+    private $columns;
+    private $offset;
+    private $order;
+    private $statement;
     private $params = [];
     private $operation = 0;
-    private $where = "";
+    private $where;
     private $attributes = [];
     private $exist = false;
 
@@ -26,6 +26,16 @@ abstract class Model
         if (!isset($this->table)) {
             $this->table = $table;
         }
+    }
+
+    public function __get($name)
+    {
+        return $this->attributes[$name];
+    }
+
+    public function __set($name, $value)
+    {
+        $this->attributes[$name] = $value;
     }
 
     public static function attributesModel()
@@ -45,7 +55,7 @@ abstract class Model
         }
 
         foreach($iterable as $attr => $value) {
-            $this->$attr = $value;
+            $this->attributes[$attr] = $value;
         }
     }
 
@@ -53,7 +63,7 @@ abstract class Model
     {
         $attrs = self::attributesModel();
         foreach($attrs as $attr) {
-            if ($attr == "table") {
+            if ($attr === "table" || $attr === "safes" || $attr === "attributes") {
                 continue;
             }
             $this->$attr = null;
@@ -115,7 +125,7 @@ abstract class Model
 
     private function filter(): Model
     {
-        $safes = $this->safe ?? [];
+        $safes = isset($this->safe) ? $this->safe : [];
         $exceptions = self::attributesModel();
 
         foreach ($this as $attr => $value) {
@@ -228,13 +238,13 @@ abstract class Model
     {
         $exceptions = self::attributesModel();
 
-        $data = [];
+        $data = $this->attributes;
 
-        foreach($this as $key => $value) {
-            if(!in_array($key, $exceptions)){
-                $data[$key] = $value;
-            }
-        }
+        // foreach($this as $key => $value) {
+        //     if(!in_array($key, $exceptions)){
+        //         $data[$key] = $value;
+        //     }
+        // }
 
         if ($this->exist) {
             $where = [];
@@ -348,7 +358,7 @@ abstract class Model
         $result = $this->find($field, $value);
 
         if (!$result) {
-            throw new \Accolon\DataLayer\Exceptions\FailQueryException("Find failed");
+            throw new FailQueryException("Find failed");
         }
 
         return $result;
@@ -361,9 +371,62 @@ abstract class Model
         return $this->getAll();
     }
 
+    public function whereOr($statements): Model
+    {
+        if (!$this->where) {
+            $this->where = "WHERE ";   
+        } else {
+            $this->where .= "OR ";
+        }
+
+        if (!is_array($statements)) {
+            $statements = func_get_args();
+        }
+
+        // Verifica se é multidimensional, se sim retorna 1 ou maior
+        $multi = array_sum(array_map("is_array", $statements));
+        
+        if($multi == 0){
+            if (sizeof($statements) == 2) {
+                $this->addParam($statements[1]);
+                $this->where .= "{$this->table}.{$statements[0]} = ?";
+            }
+
+            if (sizeof($statements) == 3) {
+                $this->addParam($statements[2]);
+                $this->where .= "{$this->table}.{$statements[0]} {$statements[1]} ?";
+            }
+            return $this;
+        }
+
+        if($multi > 0) {
+            foreach($statements as $key => $value){
+                if (sizeof($value) == 2) {
+                    $this->addParam($value[1]);
+                    $this->where .= "{$this->table}.{$value[0]} = ? ";
+                }
+                
+                if (sizeof($value) == 3) {
+                    $this->addParam($value[2]);
+                    $this->where .= "{$this->table}.{$value[0]} {$value[1]} ? ";
+                }
+
+                if(count($statements) - 1 != $key){
+                    $this->where .= "OR ";
+                }
+            }
+        }
+        
+        return $this;
+    }
+
     public function where($statements): Model
     {
-        $this->where = "WHERE ";
+        if (!$this->where) {
+            $this->where = "WHERE ";   
+        } else {
+            $this->where .= " AND ";
+        }
 
         if (!is_array($statements)) {
             $statements = func_get_args();

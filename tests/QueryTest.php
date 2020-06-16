@@ -76,7 +76,25 @@ class QueryTest extends TestCase
 
         // var_dump(json_encode($result));
 
-        $this->assertIsObject($result);
+        $this->assertInstanceOf(Model::class, $result);
+    }
+
+    public function testMultipleWhere2()
+    {
+        $db = DB::table('test');
+
+        $result = $db->where("id", 1)->where("username", "Test")->get();
+
+        $this->assertInstanceOf(Model::class, $result);
+    }
+
+    public function testWhereOr()
+    {
+        $table = new Test();
+
+        $result = $table->whereOr("id", 5)->whereOr("username", "Test")->get();
+
+        $this->assertInstanceOf(Model::class, $result);
     }
 
     public function testLimit()
@@ -102,9 +120,9 @@ class QueryTest extends TestCase
         $this->assertTrue(is_object($db->get(true)));
     }
 
-    public function testBruteSql(): void
+    public function testRaw(): void
     {
-        $db = Db::bruteSql("SELECT * FROM test WHERE id = 1");
+        $db = DB::raw("SELECT * FROM test WHERE id = 1");
         $this->assertTrue($db);
     }
 
