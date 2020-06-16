@@ -30,12 +30,36 @@ abstract class Model
 
     public function __get($name)
     {
-        return $this->attributes[$name];
+        if (array_key_exists($name, $this->attributes)) {
+            return $this->attributes[$name];
+        }
+
+        return null;
     }
 
     public function __set($name, $value)
     {
         $this->attributes[$name] = $value;
+    }
+
+    public function __isset($name)
+    {
+        return isset($this->attributes[$name]);
+    }
+
+    public function __unset($name)
+    {
+        unset($this->attributes[$name]);
+    }
+
+    public function __serialize(): array
+    {
+        return $this->attributes;
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->attributes = $data;
     }
 
     public static function attributesModel()
