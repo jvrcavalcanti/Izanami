@@ -240,12 +240,6 @@ abstract class Model
 
         $data = $this->attributes;
 
-        // foreach($this as $key => $value) {
-        //     if(!in_array($key, $exceptions)){
-        //         $data[$key] = $value;
-        //     }
-        // }
-
         if ($this->exist) {
             $where = [];
             foreach ($data as $key => $value) {
