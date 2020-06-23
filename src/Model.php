@@ -326,9 +326,9 @@ abstract class Model implements JsonSerializable
 
     /* ****************************** Query ************************** */
 
-    public function getAll(): array
+    public function getAll($columns = ["*"]): array
     {
-        $this->query();
+        $this->query()->select($columns);
 
         $result = $this->execute(true);
 
@@ -342,13 +342,22 @@ abstract class Model implements JsonSerializable
         );
     }
 
-    public function get()
+    public function get($columns = ["*"])
     {
-        $this->query();
+        $this->query()->select($columns);
 
         $result = $this->execute(false);
 
         return $result ? static::build($this->table, $result)->setExist(true) : null;
+    }
+
+    public function first($columns = ["*"])
+    {
+        $this->query()->select($columns);
+
+        $result = $this->getAll();
+
+        return (sizeof($result) === 0) ? null : $result[0];
     }
 
     public function exists(): bool

@@ -65,6 +65,15 @@ class QueryTest extends TestCase
         $this->assertIsArray($result);
     }
 
+    public function testFirst()
+    {
+        $db = new Test();
+        
+        $result = $db->select(["id, username"])->first();
+
+        $this->assertNotNull($result);
+    }
+
     public function testMultipleWhere()
     {
         $db = DB::table('test');
@@ -117,7 +126,7 @@ class QueryTest extends TestCase
     public function testQueryObject(): void
     {
         $db = DB::table('test');
-        $this->assertTrue(is_object($db->get(true)));
+        $this->assertTrue(is_object($db->get()));
     }
 
     public function testRaw(): void
