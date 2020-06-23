@@ -9,6 +9,9 @@ class InsertTest extends TestCase
     {
         $db = new Test();
 
+        // var_dump($db->table);
+        // exit;
+
         $db->username = "Test Create";
         $db->password = "123456";
 

@@ -42,16 +42,7 @@ class DB
 
     public static function table(string $tableName): Model
     {
-        return new class($tableName) extends Model {
-            protected string $table;
-
-            public function __construct($tableName = null)
-            {
-                if (is_string($tableName)) {
-                    $this->table = $tableName;
-                }   
-            }
-        };
+        return (new class extends Model {})->setTable($tableName);
     }
 
     public static function raw($sql, $params = [])

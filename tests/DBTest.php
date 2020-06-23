@@ -5,6 +5,7 @@ require_once "./tests/Test.php";
 
 use Accolon\DataLayer\DB;
 use PHPUnit\Framework\TestCase;
+use Test\Test;
 
 class DBTest extends TestCase
 {

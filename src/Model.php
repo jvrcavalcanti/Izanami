@@ -7,8 +7,9 @@ namespace Accolon\DataLayer;
 use Accolon\DataLayer\DB;
 use ReflectionClass;
 use Accolon\DataLayer\Exceptions\FailQueryException;
+use JsonSerializable;
 
-abstract class Model
+abstract class Model implements JsonSerializable
 {
     private $limit;
     private $columns;
@@ -21,11 +22,22 @@ abstract class Model
     private $attributes = [];
     private $exist = false;
 
-    public function __construct(string $table = "")
+    public function __construct(array $attributes = [])
     {
+        $this->attributes = $attributes;
+
         if (!isset($this->table)) {
+            $namespace = static::class;
+            $array = explode("\\", $namespace);
+            $table = strtolower($array[sizeof($array) - 1]) . "s";
             $this->table = $table;
         }
+    }
+
+    public function setTable(string $table): Model
+    {
+        $this->table = $table;
+        return $this;
     }
 
     public function __get($name)
@@ -54,12 +66,27 @@ abstract class Model
 
     public function __serialize(): array
     {
-        return $this->attributes;
+        return $this->filter()->getAttributes();
     }
 
     public function __unserialize(array $data): void
     {
         $this->attributes = $data;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->filter()->getAttributes();
+    }
+
+    public function __toString()
+    {
+        return $this->jsonSerialize();
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->attributes;
     }
 
     public static function attributesModel()
@@ -140,7 +167,9 @@ abstract class Model
     {
         $refletor = new ReflectionClass(static::class);
 
-        $obj = $refletor->newInstance($table);
+        $obj = $refletor->newInstance();
+
+        $obj->setTable($table);
 
         $obj->persist($data);
 
@@ -150,7 +179,7 @@ abstract class Model
     private function filter(): Model
     {
         $safes = isset($this->safe) ? $this->safe : [];
-        $exceptions = self::attributesModel();
+        $exceptions = [...self::attributesModel(), "test" => $this->table];
 
         foreach ($this as $attr => $value) {
             if (!in_array($attr, $exceptions) && !in_array($attr, $safes)) {
@@ -260,8 +289,6 @@ abstract class Model
 
     public function save(): bool
     {
-        $exceptions = self::attributesModel();
-
         $data = $this->attributes;
 
         if ($this->exist) {
@@ -310,7 +337,7 @@ abstract class Model
         }
 
         return array_map(
-            fn($obj) => static::build($this->table, $obj)->setExist(true)->filter(),
+            fn($obj) => static::build($this->table, $obj)->setExist(true),
             $result
         );
     }
@@ -321,7 +348,7 @@ abstract class Model
 
         $result = $this->execute(false);
 
-        return $result ? static::build($this->table, $result)->setExist(true)->filter() : null;
+        return $result ? static::build($this->table, $result)->setExist(true) : null;
     }
 
     public function exists(): bool
