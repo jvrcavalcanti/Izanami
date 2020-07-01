@@ -20,7 +20,7 @@ class InsertTest extends TestCase
         $this->assertTrue($result);
 
         if ($result) {
-            $db->where(["username", "=", "Test Create"])->delete();
+            $db->delete();
         }
     }
 

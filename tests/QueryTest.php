@@ -60,7 +60,7 @@ class QueryTest extends TestCase
     {
         $db = new Test();
         
-        $result = $db->select(["id, username"])->getAll();
+        $result = $db->getAll(["id, username"]);
 
         $this->assertIsArray($result);
     }
@@ -69,7 +69,16 @@ class QueryTest extends TestCase
     {
         $db = new Test();
         
-        $result = $db->select(["id, username"])->first();
+        $result = $db->first(["id, username"]);
+
+        $this->assertNotNull($result);
+    }
+
+    public function testFirstWhere()
+    {
+        $db = new Test();
+        
+        $result = $db->firstWhere("id", 1);
 
         $this->assertNotNull($result);
     }

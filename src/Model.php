@@ -258,6 +258,12 @@ abstract class Model implements JsonSerializable
     {
         $this->operation = Operation::Delete;
         $this->statement = "DELETE FROM {$this->table} ";
+
+        if ($this->exist) {
+            $where = $this->transformData($this->attributes);
+            $this->where($where);
+        }
+
         return $this->execute();
     }
 
@@ -282,9 +288,19 @@ abstract class Model implements JsonSerializable
 
         if ($result) {
             $this->persist($data);
+            $this->setExist(true);
         }
 
         return $result;
+    }
+
+    public function transformData(array $data)
+    {
+        $where = [];
+        foreach ($data as $key => $value) {
+            $where[] = [$key, $value];
+        }
+        return $where;
     }
 
     public function save(): bool
@@ -292,14 +308,11 @@ abstract class Model implements JsonSerializable
         $data = $this->attributes;
 
         if ($this->exist) {
-            $where = [];
-            foreach ($data as $key => $value) {
-                $where[] = [$key, $value];
-            }
+            $where = $this->transformData($data);
             return $this->where($where)->update($data);
         }
 
-        return $this->create($data);    
+        return $this->create($data);
     }
 
     public function update(array $cols)
@@ -358,6 +371,11 @@ abstract class Model implements JsonSerializable
         $result = $this->getAll();
 
         return (sizeof($result) === 0) ? null : $result[0];
+    }
+
+    public function firstWhere(string ...$params)
+    {
+        return $this->query()->where($params)->first();
     }
 
     public function exists(): bool
