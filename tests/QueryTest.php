@@ -55,14 +55,13 @@ class QueryTest extends TestCase
         $result = $db->find("username", "Test");
 
         $this->assertNotNull($result);
-        echo json_encode($result, JSON_PRETTY_PRINT);
     }
 
     public function testGetAll()
     {
         $db = new Test();
         
-        $result = $db->getAll(["id, username"]);
+        $result = $db->asc()->getAll(["id, username"]);
 
         $this->assertIsArray($result);
     }

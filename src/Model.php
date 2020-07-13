@@ -149,6 +149,16 @@ abstract class Model implements JsonSerializable
         return $this;
     }
 
+    public function asc(string $col = "id")
+    {
+        return $this->order($col, "ASC");
+    }
+
+    public function desc(string $col = "id")
+    {
+        return $this->order($col, "DESC");
+    }
+
     public function setExist($value): Model
     {
         $this->exist = $value;
@@ -191,7 +201,7 @@ abstract class Model implements JsonSerializable
         return $this->statement . $this->where . $this->order . $this->limit . $this->offset;
     }
 
-    public function execute(bool $all = true)
+    private function execute(bool $all = true)
     {
         $db = DB::connection();
 
