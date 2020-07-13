@@ -8,5 +8,5 @@ class Test extends Model
 {
     protected string $table = "test";
 
-    protected $safes = ["password"];
+    protected $sensitives = ["password"];
 }

@@ -66,7 +66,7 @@ abstract class Model implements JsonSerializable
 
     public function __serialize(): array
     {
-        return $this->filter()->getAttributes();
+        return $this->filterSensitives();
     }
 
     public function __unserialize(array $data): void
@@ -76,12 +76,22 @@ abstract class Model implements JsonSerializable
 
     public function jsonSerialize()
     {
-        return $this->filter()->getAttributes();
+        return $this->filterSensitives();
     }
 
     public function __toString()
     {
         return $this->jsonSerialize();
+    }
+
+    private function filterSensitives()
+    {
+        $sensitives = $this->sensitives ?? [];
+        return array_filter(
+            $this->attributes,
+            fn($attr) => !in_array($attr, $sensitives),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 
     public function getAttributes(): array
@@ -95,7 +105,7 @@ abstract class Model implements JsonSerializable
         return [
             ...array_map(fn($prop) => $prop->getName(), $refletor->getProperties()),
             "table",
-            "safes"
+            "sensitives"
         ];
     }
 
@@ -105,7 +115,7 @@ abstract class Model implements JsonSerializable
             throw new \Exception("Not's iterable");
         }
 
-        foreach($iterable as $attr => $value) {
+        foreach ($iterable as $attr => $value) {
             $this->attributes[$attr] = $value;
         }
     }
@@ -113,8 +123,8 @@ abstract class Model implements JsonSerializable
     public function clear()
     {
         $attrs = self::attributesModel();
-        foreach($attrs as $attr) {
-            if ($attr === "table" || $attr === "safes" || $attr === "attributes") {
+        foreach ($attrs as $attr) {
+            if ($attr === "table" || $attr === "sensitives" || $attr === "attributes") {
                 continue;
             }
             $this->$attr = null;
@@ -176,20 +186,6 @@ abstract class Model implements JsonSerializable
         return $obj;
     }
 
-    private function filter(): Model
-    {
-        $safes = isset($this->safe) ? $this->safe : [];
-        $exceptions = [...self::attributesModel(), "test" => $this->table];
-
-        foreach ($this as $attr => $value) {
-            if (!in_array($attr, $exceptions) && !in_array($attr, $safes)) {
-                unset($this->$attr);
-            }
-        }
-
-        return $this;
-    }
-
     public function getStatement()
     {
         return $this->statement . $this->where . $this->order . $this->limit . $this->offset;
@@ -203,15 +199,15 @@ abstract class Model implements JsonSerializable
             $this->statement . $this->where . $this->order . $this->limit . $this->offset
         );
 
-        $result = $stmt->execute($this->params);        
+        $result = $stmt->execute($this->params);
 
-        switch($this->operation) {
+        switch ($this->operation) {
             case Operation::Count:
                 $this->clear();
                 return $stmt->rowCount();
 
             case Operation::Select:
-                if(!$stmt->rowCount()){
+                if (!$stmt->rowCount()) {
                     $this->clear();
                     return null;
                 }
@@ -233,7 +229,6 @@ abstract class Model implements JsonSerializable
             default:
                 $this->clear();
                 return $result;
-
         }
     }
 
@@ -274,7 +269,7 @@ abstract class Model implements JsonSerializable
         $fields = [];
         $values = [];
 
-        foreach($data as $key => $value) {
+        foreach ($data as $key => $value) {
             $fields[] = "`{$key}`";
             $values[] = "'{$value}'";
         }
@@ -323,9 +318,9 @@ abstract class Model implements JsonSerializable
 
         $i = 0;
 
-        foreach($cols as $key => $col){
+        foreach ($cols as $key => $col) {
             $tmp = "`{$key}` = '{$col}', ";
-            if($i == count($cols) - 1){
+            if ($i == count($cols) - 1) {
                 $tmp = "`{$key}` = '{$col}' ";
             }
             $set .= $tmp;
@@ -391,7 +386,7 @@ abstract class Model implements JsonSerializable
     {
         $this->operation = Operation::Select;
 
-        if(!$this->columns || $this->columns == "") {
+        if (!$this->columns || $this->columns == "") {
             $this->columns = "*";
         }
 
@@ -446,7 +441,7 @@ abstract class Model implements JsonSerializable
     public function whereOr($statements): Model
     {
         if (!$this->where) {
-            $this->where = "WHERE ";   
+            $this->where = "WHERE ";
         } else {
             $this->where .= "OR ";
         }
@@ -458,7 +453,7 @@ abstract class Model implements JsonSerializable
         // Verifica se é multidimensional, se sim retorna 1 ou maior
         $multi = array_sum(array_map("is_array", $statements));
         
-        if($multi == 0){
+        if ($multi == 0) {
             if (sizeof($statements) == 2) {
                 $this->addParam($statements[1]);
                 $this->where .= "{$this->table}.{$statements[0]} = ?";
@@ -471,8 +466,8 @@ abstract class Model implements JsonSerializable
             return $this;
         }
 
-        if($multi > 0) {
-            foreach($statements as $key => $value){
+        if ($multi > 0) {
+            foreach ($statements as $key => $value) {
                 if (sizeof($value) == 2) {
                     $this->addParam($value[1]);
                     $this->where .= "{$this->table}.{$value[0]} = ? ";
@@ -483,7 +478,7 @@ abstract class Model implements JsonSerializable
                     $this->where .= "{$this->table}.{$value[0]} {$value[1]} ? ";
                 }
 
-                if(count($statements) - 1 != $key){
+                if (count($statements) - 1 != $key) {
                     $this->where .= "OR ";
                 }
             }
@@ -495,7 +490,7 @@ abstract class Model implements JsonSerializable
     public function where($statements): Model
     {
         if (!$this->where) {
-            $this->where = "WHERE ";   
+            $this->where = "WHERE ";
         } else {
             $this->where .= " AND ";
         }
@@ -507,7 +502,7 @@ abstract class Model implements JsonSerializable
         // Verifica se é multidimensional, se sim retorna 1 ou maior
         $multi = array_sum(array_map("is_array", $statements));
         
-        if($multi == 0){
+        if ($multi == 0) {
             if (sizeof($statements) == 2) {
                 $this->addParam($statements[1]);
                 $this->where .= "{$this->table}.{$statements[0]} = ?";
@@ -520,8 +515,8 @@ abstract class Model implements JsonSerializable
             return $this;
         }
 
-        if($multi > 0) {
-            foreach($statements as $key => $value){
+        if ($multi > 0) {
+            foreach ($statements as $key => $value) {
                 if (sizeof($value) == 2) {
                     $this->addParam($value[1]);
                     $this->where .= "{$this->table}.{$value[0]} = ? ";
@@ -532,7 +527,7 @@ abstract class Model implements JsonSerializable
                     $this->where .= "{$this->table}.{$value[0]} {$value[1]} ? ";
                 }
 
-                if(count($statements) - 1 != $key){
+                if (count($statements) - 1 != $key) {
                     $this->where .= "AND ";
                 }
             }

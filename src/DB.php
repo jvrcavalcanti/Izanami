@@ -2,6 +2,7 @@
 
 namespace Accolon\DataLayer;
 
+use Accolon\DataLayer\Exceptions\DBConfigException;
 use Accolon\DataLayer\Exceptions\TransactionException;
 use Accolon\DataLayer\Model;
 use Closure;
@@ -14,41 +15,50 @@ class DB
 
     public static function connection(): PDO
     {
-        try{
-            if(!self::$instance) {
-                $config = DB_CONFIG ?? null;
+        if (!defined('DB_CONFIG')) {
+            throw new DBConfigException("const 'DB_CONFIG' no defined");
+        }
 
-                if(!$config) return null;
+        $config = DB_CONFIG;
 
+        $url = $config['driver'] . ":";
+        $url .= "host=" . $config['host'] . ";";
+        $url .= "port=" . $config['port'] . ";";
+        $url .= "charset=" . $config['charset'] . ";";
+        $url .= "dbname=" . $config['name'];
+
+        if (!self::$instance) {
+            if ($config['driver'] === "sqlite") {
+                $url = "sqlite:" . __DIR__ . $config['name'] . "db";
+                self::$instance = new PDO($url);
+            } else {
                 self::$instance = new PDO(
-                    "{$config['driver']}:host={$config['host']};port={$config['port']};charset={$config['charset']};dbname={$config['name']}",
+                    $url,
                     $config['user'],
                     $config['password']
                 );
-                    
-                self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                self::$instance->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
-                self::$instance->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
-
-                return self::connection();
             }
-
-            return self::$instance;
-
-        }catch(PDOException $e){
-            die("ERROR: {$e->getMessage()}");
+            
+                
+            self::$instance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            self::$instance->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+            self::$instance->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
         }
+
+        return self::$instance;
     }
 
     public static function table(string $tableName): Model
     {
-        return (new class extends Model {})->setTable($tableName);
+        return (new class extends Model {
+            //
+        })->setTable($tableName);
     }
 
     public static function raw($sql, $params = [])
     {
         $stmt = self::connection()->prepare($sql);
-        return $stmt->execute($params); 
+        return $stmt->execute($params);
     }
 
     public static function selectRaw($sql, $params = [])

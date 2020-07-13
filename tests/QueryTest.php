@@ -52,8 +52,10 @@ class QueryTest extends TestCase
     public function testFind()
     {
         $db = new Test();
+        $result = $db->find("username", "Test");
 
-        $this->assertNotNull($db->find("username", "Test"));
+        $this->assertNotNull($result);
+        echo json_encode($result, JSON_PRETTY_PRINT);
     }
 
     public function testGetAll()
