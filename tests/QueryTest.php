@@ -1,11 +1,12 @@
 <?php
 
+namespace Test;
+
+use Accolon\DataLayer\Collection;
 use Accolon\DataLayer\DB;
 use Accolon\DataLayer\Model;
 use PHPUnit\Framework\TestCase;
 use Test\Test;
-
-// require_once "./vendor/autoload.php";
 
 class QueryTest extends TestCase
 {
@@ -63,7 +64,7 @@ class QueryTest extends TestCase
         
         $result = $db->asc()->getAll(["id, username"]);
 
-        $this->assertIsArray($result);
+        $this->assertInstanceOf(Collection::class, $result);
     }
 
     public function testFirst()
@@ -130,7 +131,7 @@ class QueryTest extends TestCase
     public function testQueryAll(): void
     {
         $db = DB::table('test');
-        $this->assertTrue(is_array($db->all()));
+        $this->assertTrue($db->all() instanceof Collection);
     }
 
     public function testQueryObject(): void
