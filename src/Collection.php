@@ -10,7 +10,7 @@ use JsonSerializable;
 class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess
 {
     /**
-     * @property \Accolon\Datalayer\Model[] $models
+     * @property \Accolon\DataLayer\Model[] $models
      */
     private $models = [];
     private $position = 0;
@@ -22,11 +22,13 @@ class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess
         }
     }
 
-    public function forEach(callable $callback)
+    public function forEach(callable $callback): Collection
     {
         foreach ($this->models as $key => $model) {
             $this->models[$key] = $callback($model, $key);
         }
+
+        return $this;
     }
 
     public function map(callable $callback)
@@ -92,7 +94,7 @@ class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess
             throw new \InvalidArgumentException("Must be an int");
         }
 
-        if (empty($offset)) { //this happens when you do $collection[] = 1;
+        if (empty($offset)) {
             $this->values[] = $value;
         } else {
             $this->values[$offset] = $value;

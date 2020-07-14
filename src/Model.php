@@ -20,7 +20,7 @@ abstract class Model implements JsonSerializable
     private $operation = 0;
     private $where;
     private $attributes = [];
-    private $exist = false;
+    private $exists = false;
 
     public function __construct(array $attributes = [])
     {
@@ -159,9 +159,9 @@ abstract class Model implements JsonSerializable
         return $this->order($col, "DESC");
     }
 
-    public function setExist($value): Model
+    public function setExists(bool $value): Model
     {
-        $this->exist = $value;
+        $this->exists = $value;
         return $this;
     }
 
@@ -169,7 +169,7 @@ abstract class Model implements JsonSerializable
     {
         $this->select();
 
-        $this->operation = Operation::Count;
+        $this->operation = Operation::COUNT;
 
         return $this->execute();
     }
@@ -212,11 +212,11 @@ abstract class Model implements JsonSerializable
         $result = $stmt->execute($this->params);
 
         switch ($this->operation) {
-            case Operation::Count:
+            case Operation::COUNT:
                 $this->clear();
                 return $stmt->rowCount();
 
-            case Operation::Select:
+            case Operation::SELECT:
                 if (!$stmt->rowCount()) {
                     $this->clear();
                     return null;
@@ -233,7 +233,7 @@ abstract class Model implements JsonSerializable
 
                 return $result;
 
-            case Operation::Insert:
+            case Operation::INSERT:
                 $this->id = $db->lastInsertId();
 
             default:
@@ -246,7 +246,7 @@ abstract class Model implements JsonSerializable
 
     public function select(array $cols = ["*"]): Model
     {
-        $this->operation = Operation::Select;
+        $this->operation = Operation::SELECT;
 
         $this->columns = "";
 
@@ -261,10 +261,10 @@ abstract class Model implements JsonSerializable
 
     public function delete(): bool
     {
-        $this->operation = Operation::Delete;
+        $this->operation = Operation::DELETE;
         $this->statement = "DELETE FROM {$this->table} ";
 
-        if ($this->exist) {
+        if ($this->exists) {
             $where = $this->transformData($this->attributes);
             $this->where($where);
         }
@@ -274,7 +274,7 @@ abstract class Model implements JsonSerializable
 
     public function create(array $data): bool
     {
-        $this->operation = Operation::Insert;
+        $this->operation = Operation::INSERT;
 
         $fields = [];
         $values = [];
@@ -293,7 +293,7 @@ abstract class Model implements JsonSerializable
 
         if ($result) {
             $this->persist($data);
-            $this->setExist(true);
+            $this->setExists(true);
         }
 
         return $result;
@@ -312,7 +312,7 @@ abstract class Model implements JsonSerializable
     {
         $data = $this->attributes;
 
-        if ($this->exist) {
+        if ($this->exists) {
             $where = $this->transformData($data);
             return $this->where($where)->update($data);
         }
@@ -322,7 +322,7 @@ abstract class Model implements JsonSerializable
 
     public function update(array $cols)
     {
-        $this->operation = Operation::Update;
+        $this->operation = Operation::UPDATE;
 
         $set = "";
 
@@ -347,7 +347,7 @@ abstract class Model implements JsonSerializable
     public function getAll($columns = ["*"]): Collection
     {
         $this->query()->select($columns);
-
+            
         $result = $this->execute(true);
 
         if (!$result) {
@@ -355,7 +355,7 @@ abstract class Model implements JsonSerializable
         }
 
         return new Collection(array_map(
-            fn($obj) => static::build($this->table, $obj)->setExist(true),
+            fn($obj) => static::build($this->table, $obj)->setExists(true),
             $result
         ));
     }
@@ -366,7 +366,7 @@ abstract class Model implements JsonSerializable
 
         $result = $this->execute(false);
 
-        return $result ? static::build($this->table, $result)->setExist(true) : null;
+        return $result ? static::build($this->table, $result)->setExists(true) : null;
     }
 
     public function first($columns = ["*"])
@@ -387,14 +387,14 @@ abstract class Model implements JsonSerializable
     {
         $result = $this->query()->get();
 
-        $this->exist = $result ? true : false;
+        $this->exists = $result ? true : false;
 
-        return $this->exist;
+        return $this->exists;
     }
 
     public function query(): Model
     {
-        $this->operation = Operation::Select;
+        $this->operation = Operation::SELECT;
 
         if (!$this->columns || $this->columns == "") {
             $this->columns = "*";

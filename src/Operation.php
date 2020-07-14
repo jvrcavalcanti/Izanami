@@ -4,9 +4,9 @@ namespace Accolon\DataLayer;
 
 class Operation
 {
-    const Select = 1;
-    const Insert = 2;
-    const Update = 3;
-    const Delete = 4;
-    const Count = 5;
+    const SELECT = 1;
+    const INSERT = 2;
+    const UPDATE = 3;
+    const DELETE = 4;
+    const COUNT = 5;
 }
