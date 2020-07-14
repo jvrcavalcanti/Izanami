@@ -117,6 +117,24 @@ class QueryTest extends TestCase
         $this->assertInstanceOf(Model::class, $result);
     }
 
+    public function testWhereIn()
+    {
+        $table = new Test();
+
+        $result = $table->whereIn("id", [1, 2])->getAll();
+
+        $this->assertInstanceOf(Collection::class, $result);
+    }
+
+    public function testWhereNotIn()
+    {
+        $table = new Test();
+
+        $result = $table->whereNotIn("id", [1, 2])->getAll();
+
+        $this->assertCount(0, $result);
+    }
+
     public function testLimit()
     {
         $db = DB::table('test');

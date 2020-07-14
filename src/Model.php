@@ -11,6 +11,7 @@ use JsonSerializable;
 
 abstract class Model implements JsonSerializable
 {
+    private $joinS;
     private $limit;
     private $columns;
     private $offset;
@@ -206,7 +207,7 @@ abstract class Model implements JsonSerializable
         $db = DB::connection();
 
         $stmt = $db->prepare(
-            $this->statement . $this->where . $this->order . $this->limit . $this->offset
+            $this->statement . $this->joinS . $this->where . $this->order . $this->limit . $this->offset
         );
 
         $result = $stmt->execute($this->params);
@@ -351,7 +352,7 @@ abstract class Model implements JsonSerializable
         $result = $this->execute(true);
 
         if (!$result) {
-            return [];
+            return new Collection([]);
         }
 
         return new Collection(array_map(
@@ -446,6 +447,68 @@ abstract class Model implements JsonSerializable
         $this->query();
 
         return $this->getAll();
+    }
+
+    private function join(string $type, string $table, array $params)
+    {
+        $this->join = "{$type} JOIN {$table} ON" . array_reduce(
+            $params,
+            fn($carry, $param) => $carry . " " . $param
+        );
+        var_dump($this->join);
+        exit;
+    }
+
+    public function innerJoin(string $table, string ...$params)
+    {
+        $this->join("INNER", $table, $params);
+    }
+
+    public function leftJoin(string $table, string ...$params)
+    {
+        $this->join("LEFT", $table, $params);
+    }
+
+    public function rightJoin(string $table, string ...$params)
+    {
+        $this->join("RIGHT", $table, $params);
+    }
+
+    public function fullJoin(string $table, string ...$params)
+    {
+        $this->join("FULL OUTER", $table, $params);
+    }
+
+    public function whereIn(string $col, array $values): Model
+    {
+        if (!$this->where) {
+            $this->where = "WHERE ";
+        } else {
+            $this->where .= "AND ";
+        }
+
+        $params = "(" . implode(", ", array_map(fn($value) => "?", $values)) . ")";
+        $this->addParams($values);
+
+        $this->where .= "{$this->table}.{$col} IN {$params} ";
+        
+        return $this;
+    }
+
+    public function whereNotIn(string $col, array $values): Model
+    {
+        if (!$this->where) {
+            $this->where = "WHERE ";
+        } else {
+            $this->where .= "AND ";
+        }
+
+        $params = "(" . implode(", ", array_map(fn($value) => "?", $values)) . ")";
+        $this->addParams($values);
+
+        $this->where .= "{$this->table}.{$col} NOT IN {$params} ";
+        
+        return $this;
     }
 
     public function whereOr($statements): Model
