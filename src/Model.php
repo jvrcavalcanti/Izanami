@@ -449,34 +449,34 @@ abstract class Model implements JsonSerializable
         return $this->getAll();
     }
 
-    private function join(string $type, string $table, array $params)
+    private function join(string $type, string $table, array $params): Model
     {
         $this->join = "{$type} JOIN {$table} ON" . array_reduce(
             $params,
-            fn($carry, $param) => $carry . " " . $param
+            fn($carry, $param) => $carry . " " . $param,
+            ""
         );
-        var_dump($this->join);
-        exit;
+        return $this;
     }
 
     public function innerJoin(string $table, string ...$params)
     {
-        $this->join("INNER", $table, $params);
+        return $this->join("INNER", $table, $params);
     }
 
     public function leftJoin(string $table, string ...$params)
     {
-        $this->join("LEFT", $table, $params);
+        return $this->join("LEFT", $table, $params);
     }
 
     public function rightJoin(string $table, string ...$params)
     {
-        $this->join("RIGHT", $table, $params);
+        return $this->join("RIGHT", $table, $params);
     }
 
     public function fullJoin(string $table, string ...$params)
     {
-        $this->join("FULL OUTER", $table, $params);
+        return $this->join("FULL OUTER", $table, $params);
     }
 
     public function whereIn(string $col, array $values): Model
@@ -490,7 +490,7 @@ abstract class Model implements JsonSerializable
         $params = "(" . implode(", ", array_map(fn($value) => "?", $values)) . ")";
         $this->addParams($values);
 
-        $this->where .= "{$this->table}.{$col} IN {$params} ";
+        $this->where .= "{$col} IN {$params} ";
         
         return $this;
     }
@@ -506,7 +506,7 @@ abstract class Model implements JsonSerializable
         $params = "(" . implode(", ", array_map(fn($value) => "?", $values)) . ")";
         $this->addParams($values);
 
-        $this->where .= "{$this->table}.{$col} NOT IN {$params} ";
+        $this->where .= "{$col} NOT IN {$params} ";
         
         return $this;
     }
@@ -529,12 +529,12 @@ abstract class Model implements JsonSerializable
         if ($multi == 0) {
             if (sizeof($statements) == 2) {
                 $this->addParam($statements[1]);
-                $this->where .= "{$this->table}.{$statements[0]} = ?";
+                $this->where .= "{$statements[0]} = ?";
             }
 
             if (sizeof($statements) == 3) {
                 $this->addParam($statements[2]);
-                $this->where .= "{$this->table}.{$statements[0]} {$statements[1]} ?";
+                $this->where .= "{$statements[0]} {$statements[1]} ?";
             }
             return $this;
         }
@@ -543,12 +543,12 @@ abstract class Model implements JsonSerializable
             foreach ($statements as $key => $value) {
                 if (sizeof($value) == 2) {
                     $this->addParam($value[1]);
-                    $this->where .= "{$this->table}.{$value[0]} = ? ";
+                    $this->where .= "{$value[0]} = ? ";
                 }
                 
                 if (sizeof($value) == 3) {
                     $this->addParam($value[2]);
-                    $this->where .= "{$this->table}.{$value[0]} {$value[1]} ? ";
+                    $this->where .= "{$value[0]} {$value[1]} ? ";
                 }
 
                 if (count($statements) - 1 != $key) {
@@ -578,12 +578,12 @@ abstract class Model implements JsonSerializable
         if ($multi == 0) {
             if (sizeof($statements) == 2) {
                 $this->addParam($statements[1]);
-                $this->where .= "{$this->table}.{$statements[0]} = ?";
+                $this->where .= "{$statements[0]} = ?";
             }
 
             if (sizeof($statements) == 3) {
                 $this->addParam($statements[2]);
-                $this->where .= "{$this->table}.{$statements[0]} {$statements[1]} ?";
+                $this->where .= "{$statements[0]} {$statements[1]} ?";
             }
             return $this;
         }
@@ -592,12 +592,12 @@ abstract class Model implements JsonSerializable
             foreach ($statements as $key => $value) {
                 if (sizeof($value) == 2) {
                     $this->addParam($value[1]);
-                    $this->where .= "{$this->table}.{$value[0]} = ? ";
+                    $this->where .= "{$value[0]} = ? ";
                 }
                 
                 if (sizeof($value) == 3) {
                     $this->addParam($value[2]);
-                    $this->where .= "{$this->table}.{$value[0]} {$value[1]} ? ";
+                    $this->where .= "{$value[0]} {$value[1]} ? ";
                 }
 
                 if (count($statements) - 1 != $key) {
