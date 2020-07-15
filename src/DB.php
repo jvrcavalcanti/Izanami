@@ -12,6 +12,7 @@ use PDOException;
 class DB
 {
     protected static $instance;
+    protected static $config;
 
     public static function connection(): PDO
     {
@@ -29,7 +30,7 @@ class DB
 
         if (!self::$instance) {
             if ($config['driver'] === "sqlite") {
-                $url = "sqlite:" . __DIR__ . $config['name'] . "db";
+                $url = "sqlite:" . $config['name'] . ".db";
                 self::$instance = new PDO($url);
             } else {
                 self::$instance = new PDO(
