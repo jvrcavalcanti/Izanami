@@ -197,6 +197,11 @@ abstract class Model implements JsonSerializable
         return $obj;
     }
 
+    public static function builder()
+    {
+        return new Builder(static::class);
+    }
+
     public function getStatement()
     {
         return $this->statement . $this->where . $this->order . $this->limit . $this->offset;
