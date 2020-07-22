@@ -13,7 +13,7 @@ class QueryTest extends TestCase
     public function testFindById(): void
     {
         $db = new Test();
-        $this->assertNotNull($db->findById(1));
+        $this->assertNotNull($db->findId(1));
     }
 
     public function testFindOrFail()
@@ -133,6 +133,17 @@ class QueryTest extends TestCase
         $result = $table->whereNotIn("id", [1, 2])->getAll();
 
         $this->assertCount(0, $result);
+    }
+
+    public function testWhen()
+    {
+        $table = new Test();
+
+        $result = $table->when(true, function (Test $table) {
+            $table->where('id', '>', 1);
+        })->getAll();
+
+        $this->assertCount(1, $result);
     }
 
     public function testLimit()

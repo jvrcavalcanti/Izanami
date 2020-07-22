@@ -32,7 +32,7 @@ class UpdateTest extends TestCase
     {
         $db = new Test();
 
-        $user = $db->findById(1);
+        $user = $db->findId(1);
 
         $user->password = "654321";
 
@@ -45,7 +45,7 @@ class UpdateTest extends TestCase
     {
         $db = new Test();
 
-        $user = $db->findById(1);
+        $user = $db->findId(1);
 
         $user->password = "123456";
 

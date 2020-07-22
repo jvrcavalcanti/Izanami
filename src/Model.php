@@ -389,6 +389,14 @@ abstract class Model implements JsonSerializable
         return $this->query()->where($params)->first();
     }
 
+    public function when(bool $result, callable $callback)
+    {
+        if ($result) {
+            $callback($this);
+        }
+        return $this;
+    }
+
     public function exists(): bool
     {
         $result = $this->query()->get();
@@ -426,9 +434,20 @@ abstract class Model implements JsonSerializable
         return $this->params ?? [];
     }
 
-    public function findById(int $id)
+    public function findId(int $id)
     {
         return $this->query()->where("id", $id)->get();
+    }
+
+    public function findIdOrFail(int $id)
+    {
+        $result = $this->findId($id);
+
+        if (!$result) {
+            throw new FailQueryException("Find by Id failed");
+        }
+
+        return $result;
     }
 
     public function find(string $field, string $value)

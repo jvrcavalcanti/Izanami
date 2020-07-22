@@ -6,8 +6,10 @@ use ArrayAccess;
 use Countable;
 use Iterator;
 use JsonSerializable;
+use Accolon\DataLayer\Interfaces\Arrayable;
+use Accolon\DataLayer\Interfaces\Jsonable;
 
-class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess
+class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess, Jsonable, Arrayable
 {
     /**
      * @property \Accolon\DataLayer\Model[] $models
@@ -141,7 +143,12 @@ class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess
         return $this->models;
     }
 
-    public function toArray()
+    public function toJson(): string
+    {
+        return json_encode($this);
+    }
+
+    public function toArray(): array
     {
         return $this->models;
     }
