@@ -8,8 +8,10 @@ use Accolon\DataLayer\DB;
 use ReflectionClass;
 use Accolon\DataLayer\Exceptions\FailQueryException;
 use JsonSerializable;
+use Accolon\DataLayer\Interfaces\Jsonable;
+use Accolon\DataLayer\Interfaces\Arrayable;
 
-abstract class Model implements JsonSerializable
+abstract class Model implements JsonSerializable, Jsonable, Arrayable
 {
     private $joinS;
     private $limit;
@@ -89,13 +91,18 @@ abstract class Model implements JsonSerializable
     {
         $sensitives = $this->sensitives ?? [];
         return array_filter(
-            $this->attributes,
+            $this->toArray(),
             fn($attr) => !in_array($attr, $sensitives),
             ARRAY_FILTER_USE_KEY
         );
     }
 
-    public function getAttributes(): array
+    public function toJson(): string
+    {
+        return json_encode($this->toArray());
+    }
+
+    public function toArray(): array
     {
         return $this->attributes;
     }
