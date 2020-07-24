@@ -391,6 +391,13 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return (sizeof($result) === 0) ? null : $result[0];
     }
 
+    private function fail($result)
+    {
+        if (!$result) {
+            throw new FailQueryException("Find by Id failed");
+        }
+    }
+
     public function firstWhere(string ...$params)
     {
         return $this->query()->where($params)->first();
@@ -441,18 +448,16 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $this->params ?? [];
     }
 
-    public function findId(int $id)
+    public function findId(string $id)
     {
         return $this->query()->where("id", $id)->get();
     }
 
-    public function findIdOrFail(int $id)
+    public function findIdOrFail(string $id)
     {
         $result = $this->findId($id);
 
-        if (!$result) {
-            throw new FailQueryException("Find by Id failed");
-        }
+        $this->fail($result);
 
         return $result;
     }
@@ -466,18 +471,16 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $result = $this->find($field, $value);
 
-        if (!$result) {
-            throw new FailQueryException("Find failed");
-        }
+        $this->fail($result);
 
         return $result;
     }
 
-    public function all()
+    public function all($columns = ["*"])
     {
         $this->query();
 
-        return $this->getAll();
+        return $this->getAll($columns);
     }
 
     private function join(string $type, string $table, array $params): Model

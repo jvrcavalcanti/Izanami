@@ -28,7 +28,7 @@ class QueryTest extends TestCase
         }
     }
 
-    public function testaddParams()
+    public function testAddParams()
     {
         $db = new Test();
 
