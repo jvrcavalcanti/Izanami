@@ -24,7 +24,7 @@ class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess, 
         }
     }
 
-    public function forEach(callable $callback): Collection
+    public function forEach(callable $callback)
     {
         foreach ($this->models as $key => $model) {
             $this->models[$key] = $callback($model, $key);
@@ -35,22 +35,24 @@ class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess, 
 
     public function map(callable $callback)
     {
-        $new = new Collection();
+        $new = [];
         foreach ($this->models as $key => $model) {
-            $new->add($callback($model, $key));
+            $new[] = $callback($model, $key);
         }
-        return $new;
+        $this->models = $new;
+        return $this;
     }
 
     public function filter(callable $callback)
     {
-        $new = new Collection();
+        $new = [];
         foreach ($this->models as $key => $model) {
             if ($callback($model, $key)) {
-                $new->add($model);
+                $new[$key] = $model;
             }
         }
-        return $new;
+        $this->models = $new;
+        return $this;
     }
 
     public function exists(int $key)
