@@ -25,9 +25,11 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     private $attributes = [];
     private $exists = false;
 
-    public function __construct(array $attributes = [])
+    public function __construct($attributes = [])
     {
-        $this->attributes = $attributes;
+        foreach ($attributes as $key => $value) {
+            $this->$key = $value;
+        }
 
         if (!isset($this->table)) {
             $namespace = static::class;
@@ -191,13 +193,11 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $this;
     }
 
-    public static function build(string $table, $data): Model
+    public static function build($data): Model
     {
         $refletor = new ReflectionClass(static::class);
 
         $obj = $refletor->newInstance();
-
-        $obj->setTable($table);
 
         $obj->persist($data);
 
@@ -368,7 +368,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         }
 
         return new Collection(array_map(
-            fn($obj) => static::build($this->table, $obj)->setExists(true),
+            fn($obj) => static::build($obj)->setExists(true),
             $result
         ));
     }
@@ -379,7 +379,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
         $result = $this->execute(false);
 
-        return $result ? static::build($this->table, $result)->setExists(true) : null;
+        return $result ? static::build($result)->setExists(true) : null;
     }
 
     public function first($columns = ["*"])
