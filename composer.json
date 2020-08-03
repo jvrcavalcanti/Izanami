@@ -10,9 +10,7 @@
             "email": "jonnyvictor01@gmail.com"
         }
     ],
-    "require": {
-        "php": "^7.4"
-    },
+    "require": {},
     "autoload": {
         "psr-4": {
             "Accolon\\DataLayer\\": "src/"
