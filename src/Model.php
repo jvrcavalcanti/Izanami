@@ -392,9 +392,16 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $this->query()->select($columns);
 
-        $result = $this->getAll();
+        return $this->get();
+    }
 
-        return (sizeof($result) === 0) ? null : $result[0];
+    public function firstOrFail($columns = ["*"])
+    {
+        $result = $this->first($columns);
+
+        $this->fail($result);
+
+        return $result;
     }
 
     private function fail($result)
