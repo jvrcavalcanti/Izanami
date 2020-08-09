@@ -2,17 +2,23 @@
 
 declare(strict_types = 1);
 
-namespace Accolon\DataLayer;
+namespace Accolon\Izanami;
 
-use Accolon\DataLayer\DB;
+use Accolon\Izanami\DB;
 use ReflectionClass;
-use Accolon\DataLayer\Exceptions\FailQueryException;
+use Accolon\Izanami\Exceptions\FailQueryException;
 use JsonSerializable;
-use Accolon\DataLayer\Interfaces\Jsonable;
-use Accolon\DataLayer\Interfaces\Arrayable;
+use Accolon\Izanami\Interfaces\Jsonable;
+use Accolon\Izanami\Interfaces\Arrayable;
 
 abstract class Model implements JsonSerializable, Jsonable, Arrayable
 {
+    const SELECT = 1;
+    const INSERT = 2;
+    const UPDATE = 3;
+    const DELETE = 4;
+    const COUNT = 5;
+
     private $joinS;
     private $limit;
     private $columns;
@@ -179,7 +185,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $this->select();
 
-        $this->operation = Operation::COUNT;
+        $this->operation = Model::COUNT;
 
         return $this->execute();
     }
@@ -225,11 +231,11 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $result = $stmt->execute($this->params);
 
         switch ($this->operation) {
-            case Operation::COUNT:
+            case Model::COUNT:
                 $this->clear();
                 return $stmt->rowCount();
 
-            case Operation::SELECT:
+            case Model::SELECT:
                 if (!$stmt->rowCount()) {
                     $this->clear();
                     return null;
@@ -246,7 +252,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
                 return $result;
 
-            case Operation::INSERT:
+            case Model::INSERT:
                 $this->id = $db->lastInsertId();
 
             default:
@@ -259,7 +265,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function select(array $cols = ["*"]): Model
     {
-        $this->operation = Operation::SELECT;
+        $this->operation = Model::SELECT;
 
         $this->columns = "";
 
@@ -274,7 +280,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function delete(): bool
     {
-        $this->operation = Operation::DELETE;
+        $this->operation = Model::DELETE;
         $this->statement = "DELETE FROM {$this->table} ";
 
         if ($this->exists) {
@@ -287,7 +293,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function create(array $data): bool
     {
-        $this->operation = Operation::INSERT;
+        $this->operation = Model::INSERT;
 
         $fields = [];
         $values = [];
@@ -335,7 +341,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function update(array $cols)
     {
-        $this->operation = Operation::UPDATE;
+        $this->operation = Model::UPDATE;
 
         $set = "";
 
@@ -422,7 +428,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function query(): Model
     {
-        $this->operation = Operation::SELECT;
+        $this->operation = Model::SELECT;
 
         if (!$this->columns || $this->columns == "") {
             $this->columns = "*";

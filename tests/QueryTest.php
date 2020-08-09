@@ -2,9 +2,9 @@
 
 namespace Test;
 
-use Accolon\DataLayer\Collection;
-use Accolon\DataLayer\DB;
-use Accolon\DataLayer\Model;
+use Accolon\Izanami\Collection;
+use Accolon\Izanami\DB;
+use Accolon\Izanami\Model;
 use PHPUnit\Framework\TestCase;
 use Test\Test;
 
@@ -23,7 +23,7 @@ class QueryTest extends TestCase
         try {
             $db->findOrFail("id", 5);
             $this->assertTrue(false);
-        } catch (\Accolon\DataLayer\Exceptions\FailQueryException $e) {
+        } catch (\Accolon\Izanami\Exceptions\FailQueryException $e) {
             $this->assertTrue(true);
         }
     }

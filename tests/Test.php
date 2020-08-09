@@ -2,8 +2,8 @@
 
 namespace Test;
 
-use Accolon\DataLayer\Model;
-use Accolon\DataLayer\DB;
+use Accolon\Izanami\Model;
+use Accolon\Izanami\DB;
 
 class Test extends Model
 {

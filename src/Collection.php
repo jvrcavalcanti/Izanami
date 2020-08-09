@@ -1,18 +1,18 @@
 <?php
 
-namespace Accolon\DataLayer;
+namespace Accolon\Izanami;
 
 use ArrayAccess;
 use Countable;
 use Iterator;
 use JsonSerializable;
-use Accolon\DataLayer\Interfaces\Arrayable;
-use Accolon\DataLayer\Interfaces\Jsonable;
+use Accolon\Izanami\Interfaces\Arrayable;
+use Accolon\Izanami\Interfaces\Jsonable;
 
 class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess, Jsonable, Arrayable
 {
     /**
-     * @property \Accolon\DataLayer\Model[] $models
+     * @property \Accolon\Izanami\Model[] $models
      */
     private $models = [];
     private $position = 0;
@@ -35,24 +35,33 @@ class Collection implements Iterator, Countable, JsonSerializable, ArrayAccess, 
 
     public function map(callable $callback)
     {
-        $new = [];
+        $new = new Collection();
         foreach ($this->models as $key => $model) {
-            $new[] = $callback($model, $key);
+            $new->add($callback($model, $key));
         }
-        $this->models = $new;
-        return $this;
+        return $new;
     }
 
     public function filter(callable $callback)
     {
-        $new = [];
+        $new = new Collection();
         foreach ($this->models as $key => $model) {
-            if ($callback($model, $key)) {
-                $new[$key] = $model;
+            if ($callback($model, $key) === true) {
+                $new->add($model);
             }
         }
-        $this->models = $new;
-        return $this;
+        return $new;
+    }
+
+    public function find(callable $callback): ?Model
+    {
+        foreach ($this->models as $key => $model) {
+            if ($callback($model, $key) === true) {
+                return $model;
+            }
+        }
+
+        return null;
     }
 
     public function exists(int $key)

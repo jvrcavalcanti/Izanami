@@ -1,8 +1,8 @@
 <?php
 
-namespace Accolon\DataLayer\Exceptions;
+namespace Accolon\Izanami\Exceptions;
 
-class DBConfigException extends DataLayerException
+class DBConfigException extends IzanamiException
 {
     //
 }

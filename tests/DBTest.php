@@ -2,8 +2,9 @@
 
 require_once "./vendor/autoload.php";
 require_once "./tests/Test.php";
+require_once "./config.php";
 
-use Accolon\DataLayer\DB;
+use Accolon\Izanami\DB;
 use PHPUnit\Framework\TestCase;
 use Test\Test;
 

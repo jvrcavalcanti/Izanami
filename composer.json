@@ -13,16 +13,8 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Accolon\\DataLayer\\": "src/"
+            "Accolon\\Izanami\\": "src/"
         }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "App\\": "app/"
-        },
-        "files": [
-            "config.php"
-        ]
     },
     "scripts": {
         "test": "./vendor/bin/phpunit tests"

@@ -2,7 +2,7 @@
 
 namespace Test;
 
-use Accolon\DataLayer\Collection;
+use Accolon\Izanami\Collection;
 use PHPUnit\Framework\TestCase;
 
 class CollectionTest extends TestCase
@@ -18,5 +18,12 @@ class CollectionTest extends TestCase
         $models = (new Test)->all();
         $result = $models->filter(fn($model) => $model->id > 1);
         $this->assertCount(1, $result);
+    }
+
+    public function testFind()
+    {
+        $models = (new Test)->all();
+        $result = $models->find(fn($model) => $model->id == 1);
+        $this->assertNotNull($result);
     }
 }

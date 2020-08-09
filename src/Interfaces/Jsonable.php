@@ -1,6 +1,6 @@
 <?php
 
-namespace Accolon\DataLayer\Interfaces;
+namespace Accolon\Izanami\Interfaces;
 
 interface Jsonable
 {

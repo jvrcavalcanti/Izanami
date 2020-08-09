@@ -1,10 +1,10 @@
 <?php
 
-namespace Accolon\DataLayer;
+namespace Accolon\Izanami;
 
-use Accolon\DataLayer\Exceptions\DBConfigException;
-use Accolon\DataLayer\Exceptions\TransactionException;
-use Accolon\DataLayer\Model;
+use Accolon\Izanami\Exceptions\DBConfigException;
+use Accolon\Izanami\Exceptions\TransactionException;
+use Accolon\Izanami\Model;
 use Closure;
 use PDO;
 use PDOException;

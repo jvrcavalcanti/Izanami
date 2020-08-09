@@ -1,6 +1,6 @@
 <?php
 
-namespace Accolon\DataLayer;
+namespace Accolon\Izanami;
 
 class Builder
 {

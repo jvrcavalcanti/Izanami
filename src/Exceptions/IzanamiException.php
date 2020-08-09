@@ -2,7 +2,9 @@
 
 namespace Accolon\Izanami\Exceptions;
 
-class TransactionException extends IzanamiException
+use Exception;
+
+class IzanamiException extends Exception
 {
     //
 }

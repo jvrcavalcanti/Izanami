@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use Accolon\DataLayer\Db;
+use Accolon\Izanami\Db;
 use Test\Test;
 
 class UpdateTest extends TestCase
