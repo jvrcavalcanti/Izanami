@@ -10,6 +10,7 @@ class Test extends Model
     protected string $table = "test";
 
     protected $sensitives = ["password"];
+    protected $debug = true;
 
     public function posts()
     {

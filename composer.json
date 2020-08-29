@@ -10,7 +10,9 @@
             "email": "jonnyvictor01@gmail.com"
         }
     ],
-    "require": {},
+    "require": {
+        "accolon/logging": "^0.1.0"
+    },
     "autoload": {
         "psr-4": {
             "Accolon\\Izanami\\": "src/"

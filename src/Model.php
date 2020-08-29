@@ -10,6 +10,7 @@ use Accolon\Izanami\Exceptions\FailQueryException;
 use JsonSerializable;
 use Accolon\Izanami\Interfaces\Jsonable;
 use Accolon\Izanami\Interfaces\Arrayable;
+use Accolon\Logging\Log;
 
 abstract class Model implements JsonSerializable, Jsonable, Arrayable
 {
@@ -121,7 +122,8 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return [
             ...array_map(fn($prop) => $prop->getName(), $refletor->getProperties()),
             "table",
-            "sensitives"
+            "sensitives",
+            "debug"
         ];
     }
 
@@ -227,6 +229,10 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $stmt = $db->prepare(
             $this->statement . $this->joinS . $this->where . $this->order . $this->limit . $this->offset
         );
+
+        if (isset($this->debug) && $this->debug) {
+            Log::debug("SQL = " . $this->statement . $this->joinS . $this->where . $this->order . $this->limit . $this->offset);
+        }
 
         $result = $stmt->execute($this->params);
 

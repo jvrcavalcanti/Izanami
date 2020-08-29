@@ -2,6 +2,7 @@
 
 namespace Test;
 
+use Accolon\Izanami\DB;
 use PHPUnit\Framework\TestCase;
 
 class BuilderTest extends TestCase
