@@ -19,7 +19,7 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/phpunit tests"
+        "test": "php7.4 ./vendor/bin/phpunit tests"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

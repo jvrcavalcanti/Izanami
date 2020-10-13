@@ -20,17 +20,23 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     const DELETE = 4;
     const COUNT = 5;
 
-    private $joinS;
-    private $limit;
-    private $columns;
-    private $offset;
-    private $order;
-    private $statement;
-    private $params = [];
-    private $operation = 0;
-    private $where;
-    private $attributes = [];
-    private $exists = false;
+    private \ReflectionClass $reflection;
+
+    private string $joinS = '';
+    private string $limit = '';
+    private string $columns = '';
+    private string $offset = '';
+    private string $order = '';
+    private string $statement = '';
+    private array $params = [];
+    private int $operation = 0;
+    private string $where = '';
+    private array $attributes = [];
+    private array $original = [];
+    private bool $exists = false;
+
+    protected string $primaryKey = 'id';
+    protected bool $autoIncrement = true;
 
     public function __construct($attributes = [])
     {
@@ -44,6 +50,8 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
             $table = strtolower($array[sizeof($array) - 1]) . "s";
             $this->table = $table;
         }
+
+        $this->reflection = new \ReflectionClass(static::class);
     }
 
     public function setTable(string $table): Model
@@ -116,15 +124,26 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $this->attributes;
     }
 
+    private static function exceptions()
+    {
+        return [
+            'table',
+            'sensitives',
+            'debug',
+            'attributes'
+        ];
+    }
+
     public static function attributesModel()
     {
-        $refletor = new \ReflectionClass(self::class);
-        return [
-            ...array_map(fn($prop) => $prop->getName(), $refletor->getProperties()),
-            "table",
-            "sensitives",
-            "debug"
-        ];
+        $exceptions = static::exceptions();
+        return array_filter(
+            array_map(
+                fn(\ReflectionProperty $prop) => $prop->getName(),
+                (new \ReflectionClass(static::class))->getProperties()
+            ),
+            fn($prop) => !in_array($prop, $exceptions)
+        );
     }
 
     public function persist($iterable): void
@@ -136,16 +155,24 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         foreach ($iterable as $attr => $value) {
             $this->attributes[$attr] = $value;
         }
+        $this->original = $this->attributes;
     }
 
     public function clear()
     {
         $attrs = self::attributesModel();
         foreach ($attrs as $attr) {
-            if ($attr === "table" || $attr === "sensitives" || $attr === "attributes") {
-                continue;
+            if (is_string($this->$attr)) {
+                $this->$attr = '';
             }
-            $this->$attr = null;
+
+            if (is_array($this->$attr)) {
+                $this->$attr = [];
+            }
+
+            if (is_bool($this->$attr)) {
+                $this->$attr = false;
+            }
         }
     }
 
@@ -187,25 +214,23 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $this->select();
 
-        $this->operation = Model::COUNT;
+        $this->operation = static::COUNT;
 
         return $this->execute();
     }
 
-    public function addSelect(string $col): Model
+    // public function addSelect(string $col): Model
+    // {
+    //     $this->columns .= ", {$col}";
+
+    //     $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
+
+    //     return $this;
+    // }
+
+    public static function build($data = []): Model
     {
-        $this->columns .= ", {$col}";
-
-        $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
-
-        return $this;
-    }
-
-    public static function build($data): Model
-    {
-        $refletor = new ReflectionClass(static::class);
-
-        $obj = $refletor->newInstance();
+        $obj = (new \ReflectionClass(static::class))->newInstance();
 
         $obj->persist($data);
 
@@ -219,7 +244,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function getStatement()
     {
-        return $this->statement . $this->where . $this->order . $this->limit . $this->offset;
+        return $this->statement . $this->joinS . $this->where . $this->order . $this->limit . $this->offset;
     }
 
     private function execute(bool $all = true)
@@ -231,7 +256,9 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         );
 
         if (isset($this->debug) && $this->debug) {
-            Log::debug("SQL = " . $this->statement . $this->joinS . $this->where . $this->order . $this->limit . $this->offset);
+            Log::debug(
+                "SQL = " . $stmt->queryString
+            );
         }
 
         $result = $stmt->execute($this->params);
@@ -273,8 +300,6 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $this->operation = Model::SELECT;
 
-        $this->columns = "";
-
         $cols = is_array($cols) ? $cols : func_get_args();
 
         $this->columns = implode(", ", $cols);
@@ -290,8 +315,9 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $this->statement = "DELETE FROM {$this->table} ";
 
         if ($this->exists) {
-            $where = $this->transformData($this->attributes);
-            $this->where($where);
+            foreach ($this->attributes as $key => $value) {
+                $this->where($key, $value);
+            }
         }
 
         return $this->execute();
@@ -305,8 +331,9 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $values = [];
 
         foreach ($data as $key => $value) {
+            $this->addParam($key, $value);
             $fields[] = "`{$key}`";
-            $values[] = "'{$value}'";
+            $values[] = ":{$key}";
         }
 
         $fields = "(" . implode(", ", $fields) . ")";
@@ -324,22 +351,15 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $result;
     }
 
-    public function transformData(array $data)
-    {
-        $where = [];
-        foreach ($data as $key => $value) {
-            $where[] = [$key, $value];
-        }
-        return $where;
-    }
-
     public function save(): bool
     {
         $data = $this->attributes;
 
         if ($this->exists) {
-            $where = $this->transformData($data);
-            return $this->where($where)->update($data);
+            foreach ($this->original as $key => $value) {
+                $this->where($key, $value);
+            }
+            return $this->update($data);
         }
 
         return $this->create($data);
@@ -419,7 +439,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function firstWhere(string ...$params)
     {
-        return $this->query()->where($params)->first();
+        return $this->query()->where(...$params)->first();
     }
 
     public function when(bool $result, callable $callback)
@@ -434,7 +454,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $result = $this->query()->get();
 
-        $this->exists = $result ? true : false;
+        $this->exists = !!$result;
 
         return $this->exists;
     }
@@ -452,24 +472,28 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $this;
     }
 
-    public function addParam($param)
+    public function addParam($param, $value)
     {
-        $this->params[] = $param;
+        $this->params[":{$param}"] = $value;
+        return $this;
     }
 
     public function addParams(array $params)
     {
-        $this->params = [...$this->params, ...$params];
+        foreach ($params as $param => $value) {
+            $this->addParam($param, $value);
+        }
+        return $this;
     }
 
     public function getParams(): array
     {
-        return $this->params ?? [];
+        return $this->params;
     }
 
     public function findId(string $id)
     {
-        return $this->query()->where("id", $id)->get();
+        return $this->query()->where($this->primaryKey, $id)->get();
     }
 
     public function findIdOrFail(string $id)
@@ -540,8 +564,14 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
             $this->where .= "AND ";
         }
 
-        $params = "(" . implode(", ", array_map(fn($value) => "?", $values)) . ")";
-        $this->addParams($values);
+        $params = [];
+
+        foreach ($values as $key => $value) {
+            $this->addParam($col . ($key + 1), $value);
+            $params[] = ':' . $col . ($key + 1);
+        }
+
+        $params = "(" . implode(", ", $params) . ")";
 
         $this->where .= "{$col} IN {$params} ";
         
@@ -556,109 +586,63 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
             $this->where .= "AND ";
         }
 
-        $params = "(" . implode(", ", array_map(fn($value) => "?", $values)) . ")";
-        $this->addParams($values);
+        $params = [];
+
+        foreach ($values as $key => $value) {
+            $this->addParam($col . ($key + 1), $value);
+            $params[] = ':' . $col . ($key + 1);
+        }
+
+        $params = "(" . implode(", ", $params) . ")";
 
         $this->where .= "{$col} NOT IN {$params} ";
         
         return $this;
     }
 
-    public function whereOr($statements): Model
+    public function whereOr(...$statements): Model
     {
-        if (!$this->where) {
+        if ($this->where === '') {
             $this->where = "WHERE ";
         } else {
             $this->where .= "OR ";
         }
 
-        if (!is_array($statements)) {
-            $statements = func_get_args();
+        if (sizeof($statements) === 2) {
+            [$col, $value] = $statements;
+            $exp = '=';
+            $this->addParam($col, $value);
         }
 
-        // Verifica se é multidimensional, se sim retorna 1 ou maior
-        $multi = array_sum(array_map("is_array", $statements));
-        
-        if ($multi == 0) {
-            if (sizeof($statements) == 2) {
-                $this->addParam($statements[1]);
-                $this->where .= "{$statements[0]} = ?";
-            }
-
-            if (sizeof($statements) == 3) {
-                $this->addParam($statements[2]);
-                $this->where .= "{$statements[0]} {$statements[1]} ?";
-            }
-            return $this;
+        if (sizeof($statements) === 3) {
+            [$col, $exp, $value] = $statements;
+            $this->addParam($col, $value);
         }
 
-        if ($multi > 0) {
-            foreach ($statements as $key => $value) {
-                if (sizeof($value) == 2) {
-                    $this->addParam($value[1]);
-                    $this->where .= "{$value[0]} = ? ";
-                }
-                
-                if (sizeof($value) == 3) {
-                    $this->addParam($value[2]);
-                    $this->where .= "{$value[0]} {$value[1]} ? ";
-                }
-
-                if (count($statements) - 1 != $key) {
-                    $this->where .= "OR ";
-                }
-            }
-        }
-        
+        $this->where .= "{$col} {$exp} :{$col} ";
         return $this;
     }
 
-    public function where($statements): Model
+    public function where(...$statements): Model
     {
-        if (!$this->where) {
+        if ($this->where === '') {
             $this->where = "WHERE ";
         } else {
-            $this->where .= " AND ";
+            $this->where .= "AND ";
         }
 
-        if (!is_array($statements)) {
-            $statements = func_get_args();
+        if (sizeof($statements) === 2) {
+            [$col, $value] = $statements;
+            $exp = '=';
+            $this->addParam($col, $value);
         }
 
-        // Verifica se é multidimensional, se sim retorna 1 ou maior
-        $multi = array_sum(array_map("is_array", $statements));
-        
-        if ($multi == 0) {
-            if (sizeof($statements) == 2) {
-                $this->addParam($statements[1]);
-                $this->where .= "{$statements[0]} = ?";
-            }
-
-            if (sizeof($statements) == 3) {
-                $this->addParam($statements[2]);
-                $this->where .= "{$statements[0]} {$statements[1]} ?";
-            }
-            return $this;
+        if (sizeof($statements) === 3) {
+            [$col, $exp, $value] = $statements;
+            $this->addParam($col, $value);
         }
 
-        if ($multi > 0) {
-            foreach ($statements as $key => $value) {
-                if (sizeof($value) == 2) {
-                    $this->addParam($value[1]);
-                    $this->where .= "{$value[0]} = ? ";
-                }
-                
-                if (sizeof($value) == 3) {
-                    $this->addParam($value[2]);
-                    $this->where .= "{$value[0]} {$value[1]} ? ";
-                }
-
-                if (count($statements) - 1 != $key) {
-                    $this->where .= "AND ";
-                }
-            }
-        }
-        
+        $this->where .= "{$col} {$exp} :{$col} ";
         return $this;
     }
 }

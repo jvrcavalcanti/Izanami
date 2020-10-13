@@ -28,25 +28,12 @@ class QueryTest extends TestCase
         }
     }
 
-    public function testAddParams()
-    {
-        $db = new Test();
-
-        $db->addParam("1");
-        $db->addParams([2, 3]);
-
-        $this->assertEquals(
-            ["1", 2, 3],
-            $db->getParams()
-        );
-    }
-
     public function testExists()
     {
         $db = new Test();
 
         $this->assertTrue(
-            $db->where(["id", "=", 1])->exists()
+            $db->where("id", "=", 1)->exists()
         );
     }
 
@@ -83,20 +70,6 @@ class QueryTest extends TestCase
         $result = $db->firstWhere("id", 1);
 
         $this->assertNotNull($result);
-    }
-
-    public function testMultipleWhere()
-    {
-        $db = DB::table('test');
-        
-        $result = $db->where([
-            ["id", 1],
-            ["username", "=", "Test"]
-        ])->get();
-
-        // var_dump(json_encode($result));
-
-        $this->assertInstanceOf(Model::class, $result);
     }
 
     public function testMultipleWhere2()
