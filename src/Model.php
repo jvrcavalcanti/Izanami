@@ -71,7 +71,11 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function __set($name, $value)
     {
-        $this->attributes[$name] = $value;
+        if (in_array($name, $this->exceptions())) {
+            return $this->$name = $value;
+        }
+
+        return $this->attributes[$name] = $value;
     }
 
     public function __isset($name)
@@ -130,7 +134,9 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
             'table',
             'sensitives',
             'debug',
-            'attributes'
+            'attributes',
+            'primaryKey',
+            'autoIncrement'
         ];
     }
 
@@ -251,9 +257,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $db = DB::connection();
 
-        $stmt = $db->prepare(
-            $this->statement . $this->joinS . $this->where . $this->order . $this->limit . $this->offset
-        );
+        $stmt = $db->prepare($this->getStatement());
 
         if (isset($this->debug) && $this->debug) {
             Log::debug(
@@ -296,15 +300,17 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     /* ********************* CRUD *********************** */
 
-    public function select(array $cols = ["*"]): Model
+    public function select(...$cols): Model
     {
         $this->operation = Model::SELECT;
 
-        $cols = is_array($cols) ? $cols : func_get_args();
+        if (!sizeof($cols)) {
+            $cols = ['*'];
+        }
 
         $this->columns = implode(", ", $cols);
 
-        $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
+        $this->statement = "SELECT {$this->columns} FROM `{$this->table}` ";
 
         return $this;
     }
@@ -353,45 +359,39 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function save(): bool
     {
-        $data = $this->attributes;
-
         if ($this->exists) {
             foreach ($this->original as $key => $value) {
                 $this->where($key, $value);
             }
-            return $this->update($data);
+            return $this->update($this->attributes);
         }
 
-        return $this->create($data);
+        return $this->create($this->attributes);
     }
 
     public function update(array $cols)
     {
         $this->operation = Model::UPDATE;
 
-        $set = "";
-
-        $i = 0;
+        $set = [];
 
         foreach ($cols as $key => $col) {
-            $tmp = "`{$key}` = '{$col}', ";
-            if ($i == count($cols) - 1) {
-                $tmp = "`{$key}` = '{$col}' ";
-            }
-            $set .= $tmp;
-            $i++;
+            $this->addParam("set" . $key, $col);
+            $set[] = "{$key} = :set{$key}";
         }
 
-        $this->statement = "UPDATE {$this->table} SET {$set}";
+        $set = implode(", ", $set);
+
+        $this->statement = "UPDATE {$this->table} SET {$set} ";
 
         return $this->execute();
     }
 
     /* ****************************** Query ************************** */
 
-    public function getAll($columns = ["*"]): Collection
+    public function getAll(...$columns): Collection
     {
-        $this->query()->select($columns);
+        $this->query()->select(...$columns);
             
         $result = $this->execute(true);
 
@@ -405,23 +405,30 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         ));
     }
 
-    public function get($columns = ["*"])
+    public function get(...$columns)
     {
-        $this->query()->select($columns);
+        $this->query()->select(...$columns);
 
         $result = $this->execute(false);
 
         return $result ? static::build($result)->setExists(true) : null;
     }
 
-    public function first($columns = ["*"])
+    public function first(...$columns)
     {
-        $this->query()->select($columns);
+        $this->query()->select(...$columns);
 
         return $this->get();
     }
 
-    public function firstOrFail($columns = ["*"])
+    public function all(...$columns)
+    {
+        $this->query();
+
+        return $this->getAll(...$columns);
+    }
+
+    public function firstOrFail(...$columns)
     {
         $result = $this->first($columns);
 
@@ -491,39 +498,18 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $this->params;
     }
 
-    public function findId(string $id)
+    public function find($value)
     {
-        return $this->query()->where($this->primaryKey, $id)->get();
+        return $this->query()->where($this->primaryKey, $value)->get();
     }
 
-    public function findIdOrFail(string $id)
+    public function findOrFail($value)
     {
-        $result = $this->findId($id);
+        $result = $this->find($value);
 
         $this->fail($result);
 
         return $result;
-    }
-
-    public function find(string $field, string $value)
-    {
-        return $this->query()->where($field, $value)->get();
-    }
-
-    public function findOrFail(string $field, string $value)
-    {
-        $result = $this->find($field, $value);
-
-        $this->fail($result);
-
-        return $result;
-    }
-
-    public function all($columns = ["*"])
-    {
-        $this->query();
-
-        return $this->getAll($columns);
     }
 
     private function join(string $type, string $table, array $params): Model

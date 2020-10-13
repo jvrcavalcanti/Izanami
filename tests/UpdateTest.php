@@ -10,7 +10,7 @@ class UpdateTest extends TestCase
     {
         $db = Db::table('test');
 
-        $result = $db->where("username", "=", "Teste")->update([
+        $result = $db->where("username", "Teste")->update([
             "password" => "654321"
         ]);
 
@@ -21,7 +21,7 @@ class UpdateTest extends TestCase
     {
         $db = Db::table('test');
 
-        $result = $db->where("username", "=", "Teste")->update([
+        $result = $db->where("username", "Teste")->update([
             "password" => "123456"
         ]);
 
@@ -32,7 +32,7 @@ class UpdateTest extends TestCase
     {
         $db = new Test();
 
-        $user = $db->findId(1);
+        $user = $db->find(1);
 
         $user->password = "654321";
 
@@ -45,7 +45,7 @@ class UpdateTest extends TestCase
     {
         $db = new Test();
 
-        $user = $db->findId(1);
+        $user = $db->find(1);
 
         $user->password = "123456";
 

@@ -48,10 +48,10 @@ class DB
         return self::$instance;
     }
 
-    public static function table(string $tableName): Model
+    public static function table(string $tableName, $attributes = []): Model
     {
         return (new class extends Model {
-            //
+            protected string $table;
         })->setTable($tableName);
     }
 

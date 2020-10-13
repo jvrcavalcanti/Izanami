@@ -10,18 +10,12 @@ use Test\Test;
 
 class QueryTest extends TestCase
 {
-    public function testFindById(): void
-    {
-        $db = new Test();
-        $this->assertNotNull($db->findId(1));
-    }
-
     public function testFindOrFail()
     {
         $db = new Test();
 
         try {
-            $db->findOrFail("id", 5);
+            $db->findOrFail(5);
             $this->assertTrue(false);
         } catch (\Accolon\Izanami\Exceptions\FailQueryException $e) {
             $this->assertTrue(true);
@@ -40,7 +34,7 @@ class QueryTest extends TestCase
     public function testFind()
     {
         $db = new Test();
-        $result = $db->find("username", "Test");
+        $result = $db->find(1);
 
         $this->assertNotNull($result);
     }
@@ -49,7 +43,7 @@ class QueryTest extends TestCase
     {
         $db = new Test();
         
-        $result = $db->asc()->getAll(["id, username"]);
+        $result = $db->asc()->getAll("id, username");
 
         $this->assertInstanceOf(Collection::class, $result);
     }
@@ -58,7 +52,7 @@ class QueryTest extends TestCase
     {
         $db = new Test();
         
-        $result = $db->first(["id, username"]);
+        $result = $db->first("id, username");
 
         $this->assertNotNull($result);
     }
@@ -114,7 +108,7 @@ class QueryTest extends TestCase
 
         $result = $table->when(true, function (Test $table) {
             $table->where('id', '>', 1);
-        })->getAll();
+        })->all();
 
         $this->assertCount(1, $result);
     }
@@ -139,7 +133,7 @@ class QueryTest extends TestCase
     public function testQueryObject(): void
     {
         $db = DB::table('test');
-        $this->assertTrue(is_object($db->get()));
+        $this->assertNotNull($db->get());
     }
 
     public function testRaw(): void
