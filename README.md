@@ -25,7 +25,7 @@ class User extends Model
 {
     protected string $table = "users";
 
-    protected $safes = [
+    protected $sentives = [
         "password"
     ];
 }

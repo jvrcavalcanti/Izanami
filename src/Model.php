@@ -5,7 +5,6 @@ declare(strict_types = 1);
 namespace Accolon\Izanami;
 
 use Accolon\Izanami\DB;
-use ReflectionClass;
 use Accolon\Izanami\Exceptions\FailQueryException;
 use JsonSerializable;
 use Accolon\Izanami\Interfaces\Jsonable;

@@ -27,7 +27,7 @@ class QueryTest extends TestCase
         $db = new Test();
 
         $this->assertTrue(
-            $db->where("id", "=", 1)->exists()
+            $db->where("id", 1)->exists()
         );
     }
 
