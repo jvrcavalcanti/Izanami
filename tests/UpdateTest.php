@@ -30,9 +30,7 @@ class UpdateTest extends TestCase
 
     public function testUpdateWithSave()
     {
-        $db = new Test();
-
-        $user = $db->find(1);
+        $user = (new Test)->find(1);
 
         $user->password = "654321";
 

@@ -10,6 +10,15 @@ use Test\Test;
 
 class QueryTest extends TestCase
 {
+    public function testHasOne()
+    {
+        $user = new User();
+
+        $user->phone_id = 1;
+
+        $this->assertInstanceOf(Phone::class, $user->phone);
+    }
+
     public function testFindOrFail()
     {
         $db = new Test();

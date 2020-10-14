@@ -6,6 +6,7 @@ namespace Accolon\Izanami;
 
 use Accolon\Izanami\DB;
 use Accolon\Izanami\Exceptions\FailQueryException;
+use Accolon\Izanami\Exceptions\ModelNotFoundException;
 use JsonSerializable;
 use Accolon\Izanami\Interfaces\Jsonable;
 use Accolon\Izanami\Interfaces\Arrayable;
@@ -61,11 +62,21 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function __get($name)
     {
+        $methods = array_map(fn(\ReflectionMethod $method) => $method->getName(), $this->reflection->getMethods());
+        if (in_array($name, $methods)) {
+            return $this->$name();
+        }
+
         if (array_key_exists($name, $this->attributes)) {
             return $this->attributes[$name];
         }
 
         return null;
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        return \Closure::fromCallable([new static, $name])(...$arguments);
     }
 
     public function __set($name, $value)
@@ -295,6 +306,34 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
                 $this->clear();
                 return $result;
         }
+    }
+
+    /* ********************* Relationships ********************************/
+
+    public function hasOne(string $class, ?string $foreignKey = null, ?string $localKey = null)
+    {
+        $reflection = new \ReflectionClass($class);
+        $name = strtolower($reflection->getShortName());
+        $exception = $localKey ?? "{$name}_id";
+
+        if (isset($this->attributes[$exception])) {
+            return (new $class)->where($foreignKey ?? 'id', $this->attributes[$exception])->first();
+        }
+
+        throw new ModelNotFoundException("{$class} not found");
+    }
+
+    public function hasMany(string $class, ?string $foreignKey = null, ?string $localKey = null)
+    {
+        $reflection = new \ReflectionClass($class);
+        $name = strtolower($reflection->getShortName());
+        $exception = $localKey ?? "{$name}_id";
+
+        if (isset($this->attributes[$exception])) {
+            return (new $class)->where($foreignKey ?? 'id', $this->attributes[$exception])->all();
+        }
+
+        throw new ModelNotFoundException("{$class} not found");
     }
 
     /* ********************* CRUD *********************** */
