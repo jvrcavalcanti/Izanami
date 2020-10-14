@@ -10,4 +10,9 @@ class User extends Model
     {
         return $this->hasOne(Phone::class);
     }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
 }

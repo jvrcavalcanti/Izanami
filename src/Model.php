@@ -310,27 +310,56 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     /* ********************* Relationships ********************************/
 
-    public function hasOne(string $class, ?string $foreignKey = null, ?string $localKey = null)
+    public function hasOne(string $class, ?string $foreignKey = null, ?string $localKey = null): Model
     {
         $reflection = new \ReflectionClass($class);
         $name = strtolower($reflection->getShortName());
         $exception = $localKey ?? "{$name}_id";
 
         if (isset($this->attributes[$exception])) {
-            return (new $class)->where($foreignKey ?? 'id', $this->attributes[$exception])->first();
+            return (new $class)->where($foreignKey ?? $this->primaryKey, $this->attributes[$exception])->first();
         }
 
         throw new ModelNotFoundException("{$class} not found");
     }
 
-    public function hasMany(string $class, ?string $foreignKey = null, ?string $localKey = null)
+    public function belongsToMany(string $class, ?string $foreignKey = null): Collection
+    {
+        $reflection = new \ReflectionClass(static::class);
+        $name = strtolower($reflection->getShortName());
+        $foreignKey = $foreignKey ?? "{$name}_id";
+        $localKey = $this->primaryKey;
+
+        if (isset($this->attributes[$localKey])) {
+            return (new $class)->where($foreignKey, $this->attributes[$localKey])->all();
+        }
+
+        throw new ModelNotFoundException("{$class} not found");
+    }
+
+    public function belongsToOne(string $class, ?string $foreignKey = null): Model
     {
         $reflection = new \ReflectionClass($class);
         $name = strtolower($reflection->getShortName());
-        $exception = $localKey ?? "{$name}_id";
+        $foreignKey = $foreignKey ?? $this->primaryKey;
+        $localKey = "{$name}_id";
 
-        if (isset($this->attributes[$exception])) {
-            return (new $class)->where($foreignKey ?? 'id', $this->attributes[$exception])->all();
+        if (isset($this->attributes[$localKey])) {
+            return (new $class)->where($foreignKey, $this->attributes[$localKey])->first();
+        }
+
+        throw new ModelNotFoundException("{$class} not found");
+    }
+
+    public function hasMany(string $class, ?string $foreignKey = null, ?string $localKey = null): Collection
+    {
+        $reflection = new \ReflectionClass(static::class);
+        $name = strtolower($reflection->getShortName());
+        $localKey = $localKey ?? 'id';
+        $foreignKey = $foreignKey ?? "{$name}_id";
+
+        if (isset($this->attributes[$localKey])) {
+            return (new $class)->where($foreignKey, $this->attributes[$localKey])->all();
         }
 
         throw new ModelNotFoundException("{$class} not found");

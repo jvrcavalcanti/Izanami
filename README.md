@@ -70,7 +70,8 @@ $user->where("name", "Accolon")->update([
 ]);
 
 // Or
-
+$user = (new User)->find(1);
+// $user->name == "Accolon"
 $user->email = "email" => "test@gmail.com";
 $user->save();
 ```
@@ -96,7 +97,7 @@ $user->delete();
 $table = new User();
 
 // Return one element
-$user = $table->where("name", "Accolon")->get();
+$user = $table->where("name", "Accolon")->first();
 ```
 
 ### Get All
@@ -105,7 +106,7 @@ $user = $table->where("name", "Accolon")->get();
 $table = new User();
 
 // Return array
-$user = $table->where("id", ">", 1)->getAll();
+$user = $table->where("id", ">", 1)->all();
 ```
 
 ### Where
@@ -132,6 +133,9 @@ $table->where("name", "=", "Accolon")->where("id", 2);
 // whereOr
 
 $table->whereOr("id", 1)->whereOr("name", "Accolon");
+
+// Where In
+$table->whereIn('id', [1, 2, 3]);
 ```
 
 ### Find
@@ -139,15 +143,7 @@ $table->whereOr("id", 1)->whereOr("name", "Accolon");
 ```php
 $table = new User();
 
-$user = $table->find("id", 1);
-```
-
-### Find By Id
-
-```php
-$table = new User();
-
-$user = $table->findById(1);
+$user = $table->find(1);
 ```
 
 ### Find Or Fail
@@ -156,7 +152,7 @@ $user = $table->findById(1);
 $table = new User();
 
 try {
-    $user = $table->findOrFail("id", 1);
+    $user = $table->findOrFail(1);
 } catch (\Exception $e) {
     die("Not found");
 }
@@ -183,7 +179,11 @@ $user = $table->all();
 ```php
 $table = new User();
 
-$user = $table->where("id", ">", 2)->order("id", "DESC")->getAll();
+$users = $table->where("id", ">", 2)->order("id", "DESC")->getAll();
+
+$user = $table->where("id", ">", 2)->desc()->all();
+
+$user = $table->where("id", ">", 2)->asc()->all();
 ```
 
 ### Limit
@@ -200,6 +200,46 @@ $user = $table->where("id", ">", 2)->limit(5)->getAll();
 $table = new User();
 
 $user = $table->where("id", ">", 2)->count();
+```
+
+### Relationships
+
+```php
+use Accolon\Izanami\Model;
+
+class User extends Model
+{
+    // One to One
+    public function phone()
+    {
+        return $this->hasOne(Phone::class);
+    }
+
+    // One to Many
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+}
+
+class Post extends Model
+{
+    // One to Many (Inverse)
+    public function user()
+    {
+        return $this->belongsToOne(User::class);
+    }
+}
+
+class Phone extends Model
+{
+    // One to One (Inverse)
+    public function users()
+    {
+        return $this->belongsToMany(User::class);
+    }
+}
+
 ```
 
 ### Raw

@@ -12,11 +12,30 @@ class QueryTest extends TestCase
 {
     public function testHasOne()
     {
-        $user = new User();
-
-        $user->phone_id = 1;
+        $user = (new User())->find(1);
 
         $this->assertInstanceOf(Phone::class, $user->phone);
+    }
+
+    public function testBelongsToMany()
+    {
+        $phone = (new Phone())->find(1);
+
+        $this->assertInstanceOf(User::class, $phone->users[0]);
+    }
+
+    public function testBelongsToOne()
+    {
+        $post = (new Post)->find(1);
+
+        $this->assertInstanceOf(User::class, $post->user);
+    }
+
+    public function testHasMany()
+    {
+        $user = (new User())->find(1);
+
+        $this->assertInstanceOf(Post::class, $user->posts[0]);
     }
 
     public function testFindOrFail()
