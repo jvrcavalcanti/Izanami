@@ -403,10 +403,11 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $fields = [];
         $values = [];
 
+        if ($this->autoIncrement && isset($data[$this->primaryKey])) {
+            unset($data[$this->primaryKey]);
+        }
+
         foreach ($data as $key => $value) {
-            if ($this->autoIncrement && $key == $this->primaryKey) {
-                continue;
-            }
             $this->addParam($key, $value);
             $fields[] = "`{$key}`";
             $values[] = ":{$key}";

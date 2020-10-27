@@ -11,7 +11,7 @@ class InsertTest extends TestCase
 
         // var_dump($db->table);
         // exit;
-        
+
         $db->username = "Test Create";
         $db->password = "123456";
 
@@ -20,7 +20,7 @@ class InsertTest extends TestCase
         $this->assertTrue($result);
 
         if ($result) {
-            $db->delete();
+            $this->assertTrue($db->delete());
         }
     }
 
@@ -36,7 +36,7 @@ class InsertTest extends TestCase
         $this->assertTrue($result);
 
         if ($result) {
-            $db->where("username", "Test Create")->delete();
+            $this->assertTrue($db->where("username", "Test Create")->delete());
         }
     }
 }
