@@ -404,6 +404,9 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $values = [];
 
         foreach ($data as $key => $value) {
+            if ($this->autoIncrement && $key == $this->primaryKey) {
+                continue;
+            }
             $this->addParam($key, $value);
             $fields[] = "`{$key}`";
             $values[] = ":{$key}";
