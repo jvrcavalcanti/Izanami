@@ -229,6 +229,12 @@ class Post extends Model
     {
         return $this->belongsToOne(User::class);
     }
+
+    // Many to Many
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
 }
 
 class Phone extends Model
@@ -237,6 +243,15 @@ class Phone extends Model
     public function users()
     {
         return $this->belongsToMany(User::class);
+    }
+}
+
+class Tag extends Model
+{
+    // Many to Many (Inverse)
+    public function posts()
+    {
+        return $this->morphedByMany(Post::class, 'taggable');
     }
 }
 

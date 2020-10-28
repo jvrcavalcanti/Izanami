@@ -62,16 +62,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
 
     public function __get($name)
     {
-        $methods = array_map(fn(\ReflectionMethod $method) => $method->getName(), $this->reflection->getMethods());
-        if (in_array($name, $methods)) {
-            return $this->$name();
-        }
-
-        if (array_key_exists($name, $this->attributes)) {
-            return $this->attributes[$name];
-        }
-
-        return null;
+        return $this->attributes[$name] ?? null;
     }
 
     public static function __callStatic($name, $arguments)
@@ -235,15 +226,6 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         return $this->execute();
     }
 
-    // public function addSelect(string $col): Model
-    // {
-    //     $this->columns .= ", {$col}";
-
-    //     $this->statement = "SELECT {$this->columns} FROM {$this->table} ";
-
-    //     return $this;
-    // }
-
     public static function build($data = []): Model
     {
         $obj = (new \ReflectionClass(static::class))->newInstance();
@@ -355,7 +337,7 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
     {
         $reflection = new \ReflectionClass(static::class);
         $name = strtolower($reflection->getShortName());
-        $localKey = $localKey ?? 'id';
+        $localKey = $localKey ?? $this->primaryKey;
         $foreignKey = $foreignKey ?? "{$name}_id";
 
         if (isset($this->attributes[$localKey])) {
@@ -363,6 +345,39 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         }
 
         throw new ModelNotFoundException("{$class} not found");
+    }
+
+    public function morphToMany(string $class, string $tablePrefix, ?string $foreignKey = null, ?string $localKey = null)
+    {
+        $shortClass = strtolower((new \ReflectionClass($class))->getShortName()) . '_id';
+        $typeField = $tablePrefix . "_type";
+        $type = static::class;
+        $localKey = $localKey ?? $this->primaryKey;
+        $foreignKey = $tablePrefix . '_id';
+
+        if (isset($this->attributes[$localKey])) {
+            return DB::table($tablePrefix . 's')
+                    ->where($typeField, $type)
+                    ->where($foreignKey, $this->attributes[$localKey])
+                    ->all()
+                    ->map(fn (Model $model) => (new $class)->find($model->$shortClass));
+        }
+        
+        throw new IzanamiException("morphToMany error");
+    }
+
+    public function morphedByMany(string $class, string $tablePrefix)
+    {
+        $localKey = $localKey ?? $this->primaryKey;
+        $typeField = $tablePrefix . "_type";
+        $shortLocalClass = strtolower((new \ReflectionClass(static::class))->getShortName()) . '_id';
+        $foreignKey = $tablePrefix . '_id';
+
+        return DB::table($tablePrefix . 's')
+                ->where($shortLocalClass, $this->attributes[$localKey])
+                ->where($typeField, $class)
+                ->all()
+                ->map(fn(Model $model) => (new $class)->find($model->$foreignKey));
     }
 
     /* ********************* CRUD *********************** */

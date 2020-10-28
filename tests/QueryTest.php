@@ -14,28 +14,42 @@ class QueryTest extends TestCase
     {
         $user = (new User())->find(1);
 
-        $this->assertInstanceOf(Phone::class, $user->phone);
+        $this->assertInstanceOf(Phone::class, $user->phone());
     }
 
     public function testBelongsToMany()
     {
         $phone = (new Phone())->find(1);
 
-        $this->assertInstanceOf(User::class, $phone->users[0]);
+        $this->assertInstanceOf(User::class, $phone->users()[0]);
     }
 
     public function testBelongsToOne()
     {
         $post = (new Post)->find(1);
 
-        $this->assertInstanceOf(User::class, $post->user);
+        $this->assertInstanceOf(User::class, $post->user());
     }
 
     public function testHasMany()
     {
         $user = (new User())->find(1);
 
-        $this->assertInstanceOf(Post::class, $user->posts[0]);
+        $this->assertInstanceOf(Post::class, $user->posts()[0]);
+    }
+
+    public function testMorphToMany()
+    {
+        $post = (new Post)->find(1);
+
+        $this->assertInstanceOf(Tag::class, $post->tags()[0]);
+    }
+
+    public function testMorphedByMany()
+    {
+        $tag = (new Tag)->find(1);
+
+        $this->assertInstanceOf(Post::class, $tag->posts()[0]);
     }
 
     public function testFindOrFail()

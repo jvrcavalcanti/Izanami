@@ -5,6 +5,7 @@ require_once "./tests/Test.php";
 require_once "./tests/User.php";
 require_once "./tests/Phone.php";
 require_once "./tests/Post.php";
+require_once "./tests/Tag.php";
 require_once "./config.php";
 
 use Accolon\Izanami\DB;

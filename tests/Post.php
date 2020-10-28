@@ -10,4 +10,9 @@ class Post extends Model
     {
         return $this->belongsToOne(User::class);
     }
+
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
 }
