@@ -54,6 +54,11 @@ abstract class Model implements JsonSerializable, Jsonable, Arrayable
         $this->reflection = new \ReflectionClass(static::class);
     }
 
+    public function getPrimaryKey()
+    {
+        return $this->attributes[$this->primaryKey];
+    }
+
     public function setTable(string $table): Model
     {
         $this->table = $table;
