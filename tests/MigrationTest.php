@@ -1,7 +1,6 @@
 <?php
 
-require_once "./vendor/autoload.php";
-require_once "./config.php";
+namespace Test;
 
 use Accolon\Izanami\Migration\Blueprint;
 use Accolon\Izanami\Migration\Migration;

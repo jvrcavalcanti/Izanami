@@ -1,13 +1,15 @@
 <?php
 
+namespace Test;
+
 use PHPUnit\Framework\TestCase;
-use Test\Test;
+use Test\Models\User;
 
 class InsertTest extends TestCase
 {
     public function testSave()
     {
-        $db = new Test();
+        $db = new User();
 
         // var_dump($db->table);
         // exit;
@@ -26,7 +28,7 @@ class InsertTest extends TestCase
 
     public function testCreate()
     {
-        $db = new Test();
+        $db = new User();
 
         $result = $db->create([
             "username" => "Test Create",

@@ -2,16 +2,16 @@
 
 namespace Test;
 
-use Accolon\Izanami\DB;
 use PHPUnit\Framework\TestCase;
+use Test\Models\User;
 
 class BuilderTest extends TestCase
 {
     public function testSample()
     {
-        $test = Test::builder()->username('foo')->build();
+        $test = User::builder()->username('foo')->build();
 
-        $this->assertInstanceOf(Test::class, $test);
+        $this->assertInstanceOf(User::class, $test);
         $this->assertEquals('foo', $test->username);
     }
 }

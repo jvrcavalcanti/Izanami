@@ -1,6 +1,5 @@
 vendor/*
 helper.php
 config.php
-composer.lock
-.phpunit.result.cache
 logs
+*.cache

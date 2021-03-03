@@ -6,7 +6,10 @@ use Accolon\Izanami\Collection;
 use Accolon\Izanami\DB;
 use Accolon\Izanami\Model;
 use PHPUnit\Framework\TestCase;
-use Test\Test;
+use Test\Models\User;
+use Test\Models\Phone;
+use Test\Models\Post;
+use Test\Models\Tag;
 
 class QueryTest extends TestCase
 {
@@ -54,7 +57,7 @@ class QueryTest extends TestCase
 
     public function testFindOrFail()
     {
-        $db = new Test();
+        $db = new User();
 
         try {
             $db->findOrFail(5);
@@ -66,7 +69,7 @@ class QueryTest extends TestCase
 
     public function testExists()
     {
-        $db = new Test();
+        $db = new User();
 
         $this->assertTrue(
             $db->where("id", 1)->exists()
@@ -75,7 +78,7 @@ class QueryTest extends TestCase
 
     public function testFind()
     {
-        $db = new Test();
+        $db = new User();
         $result = $db->find(1);
 
         $this->assertNotNull($result);
@@ -83,7 +86,7 @@ class QueryTest extends TestCase
 
     public function testGetAll()
     {
-        $db = new Test();
+        $db = new User();
         
         $result = $db->asc()->getAll("id, username");
 
@@ -92,7 +95,7 @@ class QueryTest extends TestCase
 
     public function testFirst()
     {
-        $db = new Test();
+        $db = new User();
         
         $result = $db->first("id, username");
 
@@ -101,7 +104,7 @@ class QueryTest extends TestCase
 
     public function testFirstWhere()
     {
-        $db = new Test();
+        $db = new User();
         
         $result = $db->firstWhere("id", 1);
 
@@ -110,7 +113,7 @@ class QueryTest extends TestCase
 
     public function testMultipleWhere2()
     {
-        $db = DB::table('test');
+        $db = DB::table('users');
 
         $result = $db->where("id", 1)->where("username", "Test")->get();
 
@@ -119,7 +122,7 @@ class QueryTest extends TestCase
 
     public function testWhereOr()
     {
-        $table = new Test();
+        $table = new User();
 
         $result = $table->whereOr("id", 5)->whereOr("username", "Test")->get();
 
@@ -128,7 +131,7 @@ class QueryTest extends TestCase
 
     public function testWhereIn()
     {
-        $table = new Test();
+        $table = new User();
 
         $result = $table->whereIn("id", [1, 2])->getAll();
 
@@ -137,7 +140,7 @@ class QueryTest extends TestCase
 
     public function testWhereNotIn()
     {
-        $table = new Test();
+        $table = new User();
 
         $result = $table->whereNotIn("id", [1, 2])->getAll();
 
@@ -146,9 +149,9 @@ class QueryTest extends TestCase
 
     public function testWhen()
     {
-        $table = new Test();
+        $table = new User();
 
-        $result = $table->when(true, function (Test $table) {
+        $result = $table->when(true, function (User $table) {
             $table->where('id', '>', 1);
         })->all();
 
@@ -157,7 +160,7 @@ class QueryTest extends TestCase
 
     public function testLimit()
     {
-        $db = DB::table('test');
+        $db = DB::table('users');
 
         $cont = 2;
 
@@ -168,25 +171,25 @@ class QueryTest extends TestCase
 
     public function testQueryAll(): void
     {
-        $db = DB::table('test');
+        $db = DB::table('users');
         $this->assertTrue($db->all() instanceof Collection);
     }
 
     public function testQueryObject(): void
     {
-        $db = DB::table('test');
+        $db = DB::table('users');
         $this->assertNotNull($db->get());
     }
 
     public function testRaw(): void
     {
-        $db = DB::raw("SELECT * FROM test WHERE id = 1");
+        $db = DB::raw("SELECT * FROM users WHERE id = 1");
         $this->assertTrue($db);
     }
 
     public function testCount(): void
     {
-        $db = DB::table('test');
+        $db = DB::table('users');
         $this->assertIsInt($db->count());
     }
 }

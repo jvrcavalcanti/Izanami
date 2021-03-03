@@ -11,24 +11,23 @@ use PDOException;
 
 class DB
 {
-    protected static $instance;
-    protected static $config;
+    protected static ?PDO $instance = null;
 
     public static function connection(): PDO
     {
-        if (!defined('DB_CONFIG')) {
-            throw new DBConfigException("const 'DB_CONFIG' no defined");
-        }
-
-        $config = DB_CONFIG;
-
-        $url = $config['driver'] . ":";
-        $url .= "host=" . $config['host'] . ";";
-        $url .= "port=" . $config['port'] . ";";
-        $url .= "charset=" . $config['charset'] . ";";
-        $url .= "dbname=" . $config['name'];
-
         if (!self::$instance) {
+            if (!defined('DB_CONFIG')) {
+                throw new DBConfigException("const 'DB_CONFIG' no defined");
+            }
+    
+            $config = DB_CONFIG;
+    
+            $url = $config['driver'] . ":";
+            $url .= "host=" . $config['host'] . ";";
+            $url .= "port=" . $config['port'] . ";";
+            $url .= "charset=" . $config['charset'] . ";";
+            $url .= "dbname=" . $config['name'];
+
             if ($config['driver'] === "sqlite") {
                 $url = "sqlite:" . $config['name'] . ".db";
                 self::$instance = new PDO($url);
@@ -46,6 +45,11 @@ class DB
         }
 
         return self::$instance;
+    }
+
+    public static function setConnection(PDO $pdo)
+    {
+        self::$instance = $pdo;
     }
 
     public static function table(string $tableName, $attributes = []): Model

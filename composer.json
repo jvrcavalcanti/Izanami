@@ -18,12 +18,18 @@
             "Accolon\\Izanami\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Accolon\\Izanami\\": "src/",
+            "Test\\": "tests/"
+        }
+    },
     "scripts": {
-        "test": "php7.4 ./vendor/bin/phpunit tests"
+        "test": "./vendor/bin/pest ."
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "phpunit/phpunit": "~9"
+        "pestphp/pest": "^1.0"
     }
 }

@@ -1,14 +1,16 @@
 <?php
 
+namespace Test;
+
 use PHPUnit\Framework\TestCase;
-use Accolon\Izanami\Db;
-use Test\Test;
+use Accolon\Izanami\DB;
+use Test\Models\User;
 
 class UpdateTest extends TestCase
 {
     public function testUpdate(): void
     {
-        $db = Db::table('test');
+        $db = DB::table('users');
 
         $result = $db->where("username", "Teste")->update([
             "password" => "654321"
@@ -19,7 +21,7 @@ class UpdateTest extends TestCase
 
     public function testUpdateTest()
     {
-        $db = Db::table('test');
+        $db = DB::table('users');
 
         $result = $db->where("username", "Teste")->update([
             "password" => "123456"
@@ -30,7 +32,7 @@ class UpdateTest extends TestCase
 
     public function testUpdateWithSave()
     {
-        $user = (new Test)->find(1);
+        $user = (new User)->find(1);
 
         $user->password = "654321";
 
@@ -41,7 +43,7 @@ class UpdateTest extends TestCase
 
     public function testUpdateWithSave2()
     {
-        $db = new Test();
+        $db = new User();
 
         $user = $db->find(1);
 

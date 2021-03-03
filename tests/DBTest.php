@@ -1,16 +1,9 @@
 <?php
 
-require_once "./vendor/autoload.php";
-require_once "./tests/Test.php";
-require_once "./tests/User.php";
-require_once "./tests/Phone.php";
-require_once "./tests/Post.php";
-require_once "./tests/Tag.php";
-require_once "./config.php";
+namespace Test;
 
 use Accolon\Izanami\DB;
 use PHPUnit\Framework\TestCase;
-use Test\Test;
 
 class DBTest extends TestCase
 {
@@ -21,6 +14,6 @@ class DBTest extends TestCase
 
     public function testCreateObject(): void
     {
-        $this->assertIsObject(DB::table('test'));
+        $this->assertIsObject(DB::table('users'));
     }
 }
