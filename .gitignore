@@ -3,3 +3,4 @@ helper.php
 config.php
 logs
 *.cache
+*.lock
